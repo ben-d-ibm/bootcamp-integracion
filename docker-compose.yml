@@ -1,0 +1,42 @@
+version: "3.9"
+
+# =============================================================
+#  Bootcamp Integración — Ambiente Local PostgreSQL
+#  Versión PostgreSQL: 15 (compatible con driver JDBC 42.7.9)
+#  Driver JDBC: https://jdbc.postgresql.org/download/postgresql-42.7.9.jar
+#  Credenciales de conexión:
+#    Host:     localhost
+#    Puerto:   5432
+#    Base de datos: bootcamp_db
+#    Usuario:  bootcamp_user
+#    Password: bootcamp_pass
+# =============================================================
+
+services:
+  postgres:
+    image: docker.io/library/postgres:15-alpine
+    container_name: bootcamp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bootcamp_db
+      POSTGRES_USER: bootcamp_user
+      POSTGRES_PASSWORD: bootcamp_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bootcamp_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bootcamp_user -d bootcamp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  bootcamp_net:
+    name: bootcamp_net
+
+volumes:
+  postgres_data:
