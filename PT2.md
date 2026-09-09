@@ -1,5 +1,11 @@
 # 🔧 Creación de Workflow en IWHI
 
+
+
+![Workflow Transferencias](workflow-transferencias.png)
+
+---
+
 ## Paso 1 — Crear el Webhook (Trigger)
 
 El primer bloque del workflow es un **Webhook** que actúa como trigger: el flujo se gatilla cada vez que un cliente realiza una transferencia.
@@ -10,7 +16,7 @@ En IWHI, al crear el Webhook se te entregará una URL. El body que debe recibir 
 
 ```json
 {
-  "numero_cuenta": "test",
+  "numero_cuenta": "ES0100010001001234567890",
   "monto": 1000,
   "trx_id": 1234,
 }
@@ -93,6 +99,3 @@ Una vez creada la conexión, configura cada bloque Produce con los siguientes pa
 2. **Connection:** selecciona la conexión configurada en el paso 5.1
 3. **Topic:** selecciona el tópico correspondiente según el caso (`beetech_aprobados` o `beetech_rechazados`)
 
----
-
-![Workflow Transferencias](workflow-transferencias.png)
