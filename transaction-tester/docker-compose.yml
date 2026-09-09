@@ -1,0 +1,15 @@
+services:
+  transaction-tester:
+    build:
+      context: ..
+      dockerfile: transaction-tester/Dockerfile
+    container_name: transaction-tester
+    ports:
+      - "8080:8080"
+    networks:
+      - bootcamp_net
+
+networks:
+  bootcamp_net:
+    external: true
+    name: bootcamp_net
