@@ -25,9 +25,7 @@ La conexión a la base de datos que no está expuesta la haremos mediante el des
 
 ## 🧪 Testing
 
-Luego de finalizar todos los pasos de la PT1 y PT2, el último paso es testear lo construído.
-
-Para esto usarán alguna de las cuentas de la tabla de arriba y enviarán transacciones mayores o menores al saldo correspondiente. El detalle de las instrucciones para esto se darán directamente en el bootcamp.
+Luego de finalizar todos los pasos de la PT1 y PT2, el último paso es testear lo construído usando el [🔧 Transaction Tester](transaction-tester/README.md): una app web chica para mandar transacciones de prueba a mano, usando alguna de las cuentas de la tabla de arriba y montos mayores o menores al saldo correspondiente.
 
 ---
 
