@@ -4,130 +4,37 @@ Este ambiente simula un escenario de **integración híbrida real**: la base de 
 
 ![Arquitectura del ambiente](img/arquitectura-ambiente.png)
 
-### Orden de ejecución
-
-| Paso | Qué se hace | Comando |
-|------|-------------|---------|
-| 1️⃣ | Levantar la base de datos on-premise | `docker compose up -d` |
-| 2️⃣ | Verificar los datos de la base de datos | `./status.sh` |
-| 3️⃣ | Registrar el Edge Runtime en IWHI y arrancarlo en la misma red | `podman run --network ...` |
-| 4️⃣ | Crear el FlowService en IWHI apuntando a `postgres:5432` | Desde la consola IWHI |
-| 5️⃣ | Construir el workflow híbrido (on-prem + SaaS) | Desde la consola IWHI |
-
 ---
 
-## 📁 Estructura
+## Paso 1 — Levantar la base de datos
 
-```
-.
-├── docker-compose.yml
-├── postgresql-42.7.9.jar   ← driver JDBC para usar en iWHI
-├── status.sh               ← verifica el estado del entorno
-└── init/
-    ├── 01_schema.sql   ← crea la tabla `clientes`
-    └── 02_data.sql     ← inserta 30 registros dummy
-```
+Corre el siguiente comando según tu entorno. Esto levantará un contenedor con PostgreSQL y ejecutará automáticamente los scripts de inicialización que crearán la tabla `clientes` y la llenarán con 30 registros dummy.
 
----
-
-## 🔑 Credenciales de conexión
-
-### Desde tu máquina (cliente SQL, pgAdmin de escritorio, etc.)
-
-| Parámetro       | Valor            | |
-|-----------------|------------------|---|
-| **Host**        | `localhost`      | → Host para conexión en IWHI: `postgres` |
-| **Puerto**      | `5432`           | |
-| **Base de datos** | `bootcamp_db`  | |
-| **Usuario**     | `bootcamp_user`  | |
-| **Contraseña**  | `bootcamp_pass`  | |
-
-```
-postgresql://bootcamp_user:bootcamp_pass@localhost:5432/bootcamp_db
-```
-
-### Desde el IWHI Edge Runtime (FlowService)
-
-El runtime corre en la misma red Docker que Postgres (ver paso 2️⃣), por lo que usa el hostname interno del contenedor:
-
-| Parámetro       | Valor            |
-|-----------------|------------------|
-| **Host**        | `postgres`       |
-| **Puerto**      | `5432`           |
-| **Base de datos** | `bootcamp_db`  |
-| **Usuario**     | `bootcamp_user`  |
-| **Contraseña**  | `bootcamp_pass`  |
-
----
-
-## 🚀 Paso 1 — Levantar la base de datos on-premise
-
-### Con Docker
 ```bash
+# Docker
 docker compose up -d
-```
 
-### Con Podman
-```bash
+# Podman
 podman-compose up -d
 ```
 
-> ⏱️ La primera vez descarga las imágenes (~200 MB). Espera unos segundos a que el healthcheck de PostgreSQL sea `healthy` antes de conectarte.
+> ⏱️ La primera vez descarga las imagen (~200 MB). Espera unos segundos a que el healthcheck de PostgreSQL sea `healthy` antes de continuar.
 
 ---
 
-## ⚙️ Paso 2 — Instalar el IWHI Edge Runtime en la misma red
+## Paso 2 — Verificar los datos de conexión y la carga de datos
 
-La red se llama siempre **`bootcamp_net`** — está definida con nombre fijo en el `docker-compose.yml`, sin importar el nombre de tu carpeta.
+Usa estos datos para conectarte desde cualquier cliente SQL (pgAdmin, DBeaver, etc.):
 
-Puedes confirmarlo con:
+| Parámetro | Valor |
+|---|---|
+| **Host** | `localhost` |
+| **Puerto** | `5432` |
+| **Base de datos** | `bootcamp_db` |
+| **Usuario** | `bootcamp_user` |
+| **Contraseña** | `bootcamp_pass` |
 
-```bash
-podman network ls | grep bootcamp_net
-```
-
-Úsalo en el flag `--network` al correr el runtime:
-
-```bash
-podman run \
-  --network bootcamp_net \
-  -p 5555:5555 \
-  -p 4430:443 \
-  -d \
-  --platform linux/amd64 \
-  -e SAG_IS_CLOUD_REGISTER_URL=<URL-de-tu-tenant> \
-  -e SAG_IS_EDGE_CLOUD_ALIAS=<nombre-del-runtime> \
-  -e SAG_IS_CLOUD_REGISTER_TOKEN=<token-del-paso-4-de-IWHI> \
-  -e METERING_TOKEN=<metering-token> \
-  --name=<nombre-del-runtime> \
-  iwhicr.azurecr.io/webmethods-edge-runtime:12.0.4.0
-```
-
-> ⚠️ El token de registro expira en ~15 minutos. Genera el runtime en IWHI, deja abierta la pantalla del paso 4 y ejecuta el comando inmediatamente.
-
-Confirma que el runtime conectó con IWHI:
-
-```bash
-podman logs -f <nombre-del-runtime>
-# Busca: "Edge instance registration is successful"
-```
-
----
-
-
-### 🔄 Eliminar y volver a correr el Edge Runtime (Podman)
-
-Si necesitas eliminar el contenedor del runtime y arrancarlo de nuevo:
-
-```bash
-podman rm -f <nombre-del-runtime>
-```
-
-Luego vuelve a ejecutar el comando del paso 3️⃣.
-
----
-
-## 🔍 Conectar con psql (opcional)
+Para verificar que los datos se cargaron correctamente, entra a la consola de PostgreSQL:
 
 ```bash
 # Docker
@@ -137,48 +44,68 @@ docker exec -it bootcamp_postgres psql -U bootcamp_user -d bootcamp_db
 podman exec -it bootcamp_postgres psql -U bootcamp_user -d bootcamp_db
 ```
 
----
-
-## 🗄️ Tabla `clientes`
-
-| Columna           | Tipo           | Descripción                          |
-|-------------------|----------------|--------------------------------------|
-| `id`              | SERIAL (PK)    | Identificador autoincremental        |
-| `numero_cuenta`   | VARCHAR(20)    | Número IBAN único                    |
-| `nombre`          | VARCHAR(100)   | Nombre del cliente                   |
-| `apellido`        | VARCHAR(100)   | Apellidos del cliente                |
-| `email`           | VARCHAR(150)   | Email único                          |
-| `telefono`        | VARCHAR(20)    | Teléfono de contacto                 |
-| `fecha_nacimiento`| DATE           | Fecha de nacimiento                  |
-| `tipo_cuenta`     | VARCHAR(20)    | `CORRIENTE`, `AHORRO` o `NOMINA`     |
-| `saldo`           | NUMERIC(15,2)  | Saldo actual en euros                |
-| `activo`          | BOOLEAN        | Estado de la cuenta                  |
-| `fecha_alta`      | TIMESTAMP      | Fecha de apertura de la cuenta       |
-
-### Consultas de ejemplo
+Y luego ejecuta:
 
 ```sql
--- Todos los clientes
 SELECT * FROM clientes;
-
--- Clientes con cuenta de ahorro y saldo > 10.000 €
-SELECT nombre, apellido, saldo
-FROM clientes
-WHERE tipo_cuenta = 'AHORRO' AND saldo > 10000
-ORDER BY saldo DESC;
-
--- Resumen por tipo de cuenta (vista precreada)
-SELECT * FROM v_resumen_clientes;
 ```
 
 ---
 
-## ✅ Verificar que todo funciona
+## Paso 3 — Instalar el IWHI Edge Runtime en la misma red
+
+El runtime debe correr dentro de la misma red Docker que Postgres (`bootcamp_net`) para poder acceder a él usando el hostname interno `postgres`.
+
+Al comando que te entrega IWHI debes hacerle dos ajustes:
+1. Agregar la flag `--network bootcamp_net`
+2. Cambiar el puerto `-p 4430:443` (el puerto 443 puede estar ocupado en tu máquina)
+
+Ejemplo del comando:
 
 ```bash
-# Ver estado de los contenedores
-docker compose ps
-
-# Esperar a que postgres esté healthy
-docker compose logs postgres
+docker run \
+  --network bootcamp_net \
+  -p 5555:5555 \
+  -p 4430:443 \
+  -d \
+  ...
 ```
+
+> ⚠️ El token de registro expira en ~15 minutos. Genera el runtime en IWHI, deja abierta la pantalla y ejecuta el comando inmediatamente.
+---
+
+## Paso 4 — Crear el FlowService `getClientInfo` en IWHI
+
+### 4.1 — Sincronizar con el runtime levantado
+
+En la consola de IWHI, crea un nuevo FlowService y sincronízalo con el Edge Runtime que levantaste en el paso anterior.
+
+### 4.2 — Crear la conexión a la base de datos
+
+Configura una nueva conexión con los siguientes datos:
+
+| Parámetro | Valor |
+|---|---|
+| **Host** | `postgres` |
+| **Puerto** | `5432` |
+| **Base de datos** | `bootcamp_db` |
+| **Usuario** | `bootcamp_user` |
+| **Contraseña** | `bootcamp_pass` |
+
+> El host es `postgres` (no `localhost`) porque el runtime corre dentro de la misma red Docker que el contenedor de PostgreSQL.
+
+### 4.3 — Agregar la acción `getClientInfo`
+
+Agrega una acción de tipo query llamada `getClientInfo` que filtre usando `numero_cuenta` como condición:
+
+```sql
+SELECT * FROM clientes WHERE numero_cuenta = :numero_cuenta
+```
+
+### 4.4 — Configurar el pipeline y testear
+
+Configura el pipeline del FlowService mapeando el parámetro de entrada `numero_cuenta` a la condición de la query. Luego testea el FlowService directamente desde la consola de IWHI usando alguno de los números de cuenta de la base de datos.
+
+---
+
+Una vez completado esto, estamos listos para continuar con la construcción del workflow. ➡️ [Ir a PT2 — Creación de Workflow en IWHI](PT2.md)
