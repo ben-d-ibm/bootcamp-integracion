@@ -58,3 +58,41 @@ Desde el Switch se abren **dos flujos paralelos**, cada uno con un bloque **Prod
 | ❌ Rechazado | `beetech_rechazados` |
 
 El mensaje publicado debe incluir la información del cliente y el resultado de la evaluación.
+
+### 5.1 — Configurar la conexión a Kafka
+
+Antes de configurar cada bloque Produce, debes crear la conexión a Confluent Cloud. Usa los siguientes datos:
+
+![Configuración conexión Kafka](conexion-kafka.png)
+
+| Campo | Valor |
+|---|---|
+| **Client Type** | `Producer` |
+| **Bootstrap Servers** | `pkc-921jm.us-east-2.aws.confluent.cloud:9092` |
+| **Key Serializer** | `string` |
+| **Value Serializer** | `string` |
+| **Client ID** | `<nombre_asistente>` |
+| **Security Protocol** | `SASL_SSL` |
+
+**JAAS Config:**
+```
+org.apache.kafka.common.security.plain.PlainLoginModule required username="RSCS7EZW5G6ONBBX" password="cfltRc340vpmx4nkUy/62nsJvUuODsBkWLaFyZJLJJ+S/Nxyi8llAtGaWkrypmWg";
+```
+
+**Property adicional:**
+
+| Property Name | Value |
+|---|---|
+| `sasl.mechanism` | `PLAIN` |
+
+### 5.2 — Configurar el bloque Produce
+
+Una vez creada la conexión, configura cada bloque Produce con los siguientes pasos:
+
+1. **Action Name:** `Produce`
+2. **Connection:** selecciona la conexión configurada en el paso 5.1
+3. **Topic:** selecciona el tópico correspondiente según el caso (`beetech_aprobados` o `beetech_rechazados`)
+
+---
+
+![Workflow Transferencias](workflow-transferencias.png)
