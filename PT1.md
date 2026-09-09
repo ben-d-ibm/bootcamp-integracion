@@ -2,7 +2,7 @@
 
 Este ambiente simula un escenario de **integración híbrida real**: la base de datos existe on-premise (en tu máquina, via Docker) y el Edge Runtime de IWHI se instala después para conectarla a la nube — exactamente como ocurre en una empresa que quiere exponer sus sistemas internos a plataformas SaaS sin abrir su firewall.
 
-![Arquitectura del ambiente](arquitectura-ambiente.png)
+![Arquitectura del ambiente](img/arquitectura-ambiente.png)
 
 ### Orden de ejecución
 

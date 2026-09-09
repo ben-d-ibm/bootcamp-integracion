@@ -2,7 +2,7 @@
 
 
 
-![Workflow Transferencias](workflow-transferencias.png)
+![Workflow Transferencias](img/workflow-transferencias.png)
 
 ---
 
@@ -69,7 +69,7 @@ El mensaje publicado debe incluir la información del cliente y el resultado de 
 
 Antes de configurar cada bloque Produce, debes crear la conexión a Confluent Cloud. Usa los siguientes datos:
 
-![Configuración conexión Kafka](conexion-kafka.png)
+![Configuración conexión Kafka](img/conexion-kafka.png)
 
 | Campo | Valor |
 |---|---|
