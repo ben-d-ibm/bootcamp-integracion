@@ -18,7 +18,7 @@ En IWHI, al crear el Webhook se te entregará una URL. El body que debe recibir 
 {
   "numero_cuenta": "ES0100010001001234567890",
   "monto": 1000,
-  "trx_id": 1234,
+  "trx_id": 1234
 }
 ```
 
@@ -54,48 +54,77 @@ Agrega un bloque **Switch** que evalúa si la transacción debe ser aprobada o r
 
 ---
 
-## Paso 5 — Produce (Confluent Cloud)
+## Paso 5 — Return (Respuesta al webhook)
 
-Desde el Switch se abren **dos flujos paralelos**, cada uno con un bloque **Produce** que publica el evento en el tópico correspondiente de Confluent Cloud:
+Cada rama del Switch debe terminar con un bloque **Return** que devuelve el resultado de la evaluación como respuesta HTTP al caller. Esto permite que la web de pruebas muestre el resultado en tiempo real.
 
-| Caso | Tópico |
-|---|---|
-| ✅ Aprobado | `beetech_aprobados` |
-| ❌ Rechazado | `beetech_rechazados` |
+### 5.1 — Rama aprobada (`case 1`)
 
-El mensaje publicado debe incluir la información del cliente y el resultado de la evaluación.
+Configura el bloque Return con el siguiente JSON:
 
-### 5.1 — Configurar la conexión a Kafka
-
-Antes de configurar cada bloque Produce, debes crear la conexión a Confluent Cloud. Usa los siguientes datos:
-
-![Configuración conexión Kafka](img/conexion-kafka.png)
-
-| Campo | Valor |
-|---|---|
-| **Client Type** | `Producer` |
-| **Bootstrap Servers** | `pkc-921jm.us-east-2.aws.confluent.cloud:9092` |
-| **Key Serializer** | `string` |
-| **Value Serializer** | `string` |
-| **Client ID** | `<nombre_asistente>` |
-| **Security Protocol** | `SASL_SSL` |
-
-**JAAS Config:**
-```
-org.apache.kafka.common.security.plain.PlainLoginModule required username="RSCS7EZW5G6ONBBX" password="cfltRc340vpmx4nkUy/62nsJvUuODsBkWLaFyZJLJJ+S/Nxyi8llAtGaWkrypmWg";
+```json
+{
+  "resultado": "aprobado",
+  "trx_id": "$trx_id",
+  "numero_cuenta": "$numero_cuenta",
+  "monto": "$monto",
+  "nombre": "$nombre",
+  "apellido": "$apellido",
+  "saldo": "$saldo"
+}
 ```
 
-**Property adicional:**
+> Reemplaza cada `$campo` con el mapeo al valor correspondiente del contexto del workflow (el `trx_id` y `monto` vienen del webhook; `nombre`, `apellido` y `saldo` vienen del FlowService `getClientInfo`).
 
-| Property Name | Value |
-|---|---|
-| `sasl.mechanism` | `PLAIN` |
+### 5.2 — Rama rechazada (`default`)
 
-### 5.2 — Configurar el bloque Produce
+Configura el bloque Return con el siguiente JSON:
 
-Una vez creada la conexión, configura cada bloque Produce con los siguientes pasos:
+```json
+{
+  "resultado": "rechazado",
+  "trx_id": "$trx_id",
+  "numero_cuenta": "$numero_cuenta",
+  "monto": "$monto",
+  "nombre": "$nombre",
+  "apellido": "$apellido",
+  "saldo": "$saldo",
+  "motivo": "Saldo insuficiente"
+}
+```
 
-1. **Action Name:** `Produce`
-2. **Connection:** selecciona la conexión configurada en el paso 5.1
-3. **Topic:** selecciona el tópico correspondiente según el caso (`beetech_aprobados` o `beetech_rechazados`)
+El campo `motivo` es texto fijo — no necesita mapeo dinámico.
 
+---
+
+## Paso 6 — Probar con el Transaction Tester
+
+Con el workflow completo y activo en IWHI, levanta la web de pruebas para enviar transacciones reales y ver el resultado en vivo.
+
+### 6.1 — Levantar el contenedor
+
+La base de datos ya está corriendo desde la PT1. Solo hay que levantar el nuevo servicio desde la raíz del proyecto:
+
+```bash
+# Docker
+docker compose up -d transaction-tester
+
+# Podman
+podman compose up -d transaction-tester
+```
+
+Abre **http://localhost:8080** en el navegador.
+
+### 6.2 — Configurar la URL del webhook
+
+1. Copia la URL del webhook que te entregó IWHI en el Paso 1.
+2. Pégala en el campo **URL del workflow (IWHI)** de la web. Se guarda automáticamente en el navegador.
+
+### 6.3 — Enviar transacciones de prueba
+
+1. Haz clic en **Cargar cuentas** — la web consulta la base de datos y muestra las cuentas disponibles.
+2. Selecciona una cuenta de la tabla.
+3. Ingresa un **monto menor al saldo** de la cuenta → deberías ver ✅ **Transacción aprobada**.
+4. Ingresa un **monto mayor al saldo** → deberías ver ❌ **Transacción rechazada**.
+
+El registro al final de la página muestra el detalle completo de cada llamada (request enviado, HTTP status y respuesta raw de IWHI).

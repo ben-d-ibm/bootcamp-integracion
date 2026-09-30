@@ -34,6 +34,20 @@ services:
       timeout: 5s
       retries: 5
 
+  transaction-tester:
+    build:
+      context: .
+      dockerfile: transaction-tester/Dockerfile
+    container_name: transaction-tester
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - bootcamp_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 networks:
   bootcamp_net:
     name: bootcamp_net

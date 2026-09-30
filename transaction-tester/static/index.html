@@ -3,117 +3,419 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Transaction Tester</title>
+<title>Transaction Tester — Bootcamp Integración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f4f5f7;
-    color: #1a1a1a;
-    font-size: 13px;
-  }
-  .wrap { max-width: 480px; margin: 0 auto; padding: 12px; }
-  h1 { font-size: 16px; margin: 0 0 12px; }
-  .card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-  }
-  .card h2 { font-size: 12px; margin: 0 0 8px; color: #555; text-transform: uppercase; letter-spacing: .03em; }
-  input[type=text], input[type=number] {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 13px;
-    font-family: monospace;
-  }
-  .row { display: flex; gap: 6px; align-items: center; }
-  .row input { flex: 1; }
-  button {
-    padding: 6px 10px;
-    border: none;
-    border-radius: 5px;
-    background: #2563eb;
-    color: #fff;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  button:hover { background: #1d4ed8; }
-  button.secondary { background: #6b7280; }
-  button.secondary:hover { background: #4b5563; }
-  button:disabled { background: #b7c3e0; cursor: not-allowed; }
-  #cuentasBox { max-height: 160px; overflow-y: auto; margin-top: 8px; border: 1px solid #eee; border-radius: 5px; display: none; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  td, th { padding: 4px 6px; text-align: left; border-bottom: 1px solid #eee; white-space: nowrap; }
-  tr.acc-row { cursor: pointer; }
-  tr.acc-row:hover { background: #eef2ff; }
-  tr.selected { background: #dbeafe; }
-  #selCuenta { font-family: monospace; font-size: 12px; margin-top: 6px; color: #333; min-height: 14px; }
-  #enviarBtn { width: 100%; margin-top: 4px; padding: 9px; font-size: 13px; }
-  #log { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column-reverse; }
-  .entry { border-bottom: 1px dashed #e5e5e5; padding: 6px 0; font-family: monospace; font-size: 11.5px; line-height: 1.5; }
-  .entry:last-child { border-bottom: none; }
-  .req { color: #2563eb; }
-  .ok { color: #16a34a; font-weight: bold; }
-  .err { color: #dc2626; font-weight: bold; }
-  .dim { color: #888; }
-  small.hint { color: #888; display: block; margin-top: 4px; }
+/* ── Carbon Design System tokens (manual, no build required) ───────────── */
+:root {
+  --cds-background:        #f4f4f4;
+  --cds-layer-01:          #ffffff;
+  --cds-layer-02:          #f4f4f4;
+  --cds-border-subtle-00:  #e0e0e0;
+  --cds-border-subtle-01:  #c6c6c6;
+  --cds-border-strong-01:  #8d8d8d;
+  --cds-text-primary:      #161616;
+  --cds-text-secondary:    #525252;
+  --cds-text-placeholder:  #a8a8a8;
+  --cds-text-on-color:     #ffffff;
+  --cds-interactive:       #0f62fe;
+  --cds-interactive-hover: #0353e9;
+  --cds-disabled-02:       #c6c6c6;
+  --cds-disabled-03:       #8d8d8d;
+  --cds-support-success:   #198038;
+  --cds-support-error:     #da1e28;
+  --cds-support-warning:   #f1c21b;
+  --cds-support-info:      #0043ce;
+  --cds-highlight:         #d0e2ff;
+  --cds-notification-success-background: #defbe6;
+  --cds-notification-error-background:   #fff1f1;
+  --cds-notification-info-background:    #edf5ff;
+  --cds-spacing-01: 2px;
+  --cds-spacing-02: 4px;
+  --cds-spacing-03: 8px;
+  --cds-spacing-04: 12px;
+  --cds-spacing-05: 16px;
+  --cds-spacing-06: 24px;
+  --cds-spacing-07: 32px;
+  --cds-spacing-08: 40px;
+  --cds-spacing-09: 48px;
+}
+
+/* ── Reset & base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.42857;
+  background: var(--cds-background);
+  color: var(--cds-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.cds-header {
+  background: #161616;
+  color: #f4f4f4;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--cds-spacing-05);
+  border-bottom: 1px solid #393939;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.cds-header__name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  color: #f4f4f4;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+}
+.cds-header__name span { font-weight: 300; color: #c6c6c6; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.page-content {
+  max-width: 672px;
+  margin: 0 auto;
+  padding: var(--cds-spacing-06) var(--cds-spacing-05);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-spacing-06);
+}
+
+/* ── Section title ───────────────────────────────────────────────────────── */
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--cds-text-secondary);
+  margin-bottom: var(--cds-spacing-03);
+}
+
+/* ── Tile (Carbon Tile) ──────────────────────────────────────────────────── */
+.cds-tile {
+  background: var(--cds-layer-01);
+  border: 1px solid var(--cds-border-subtle-00);
+  padding: var(--cds-spacing-05);
+}
+
+/* ── Text Input ──────────────────────────────────────────────────────────── */
+.cds-form-item { display: flex; flex-direction: column; gap: var(--cds-spacing-02); }
+.cds-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--cds-text-secondary);
+  letter-spacing: 0.32px;
+}
+.cds-text-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--cds-spacing-04);
+  background: var(--cds-layer-02);
+  border: none;
+  border-bottom: 1px solid var(--cds-border-strong-01);
+  color: var(--cds-text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  transition: background 70ms, border-color 70ms;
+}
+.cds-text-input::placeholder { color: var(--cds-text-placeholder); }
+.cds-text-input:focus {
+  background: #e8e8e8;
+  border-bottom: 2px solid var(--cds-interactive);
+  outline: none;
+}
+.cds-helper-text {
+  font-size: 12px;
+  color: var(--cds-text-secondary);
+  letter-spacing: 0.32px;
+}
+
+/* ── Button ──────────────────────────────────────────────────────────────── */
+.cds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cds-spacing-03);
+  height: 40px;
+  padding: 0 var(--cds-spacing-07) 0 var(--cds-spacing-05);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 70ms;
+}
+.cds-btn--primary {
+  background: var(--cds-interactive);
+  color: var(--cds-text-on-color);
+}
+.cds-btn--primary:hover:not(:disabled) { background: var(--cds-interactive-hover); }
+.cds-btn--secondary {
+  background: #393939;
+  color: var(--cds-text-on-color);
+  border-color: transparent;
+}
+.cds-btn--secondary:hover:not(:disabled) { background: #474747; }
+.cds-btn--ghost {
+  background: transparent;
+  color: var(--cds-interactive);
+  padding: 0 var(--cds-spacing-04);
+}
+.cds-btn--ghost:hover:not(:disabled) { background: #e8e8e8; }
+.cds-btn:disabled {
+  background: var(--cds-disabled-02);
+  color: var(--cds-disabled-03);
+  cursor: not-allowed;
+  border-color: transparent;
+}
+.cds-btn--full { width: 100%; }
+
+/* ── Data Table ──────────────────────────────────────────────────────────── */
+.cds-data-table-wrapper {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--cds-border-subtle-00);
+  margin-top: var(--cds-spacing-03);
+  display: none;
+}
+.cds-data-table { width: 100%; border-collapse: collapse; }
+.cds-data-table thead { background: var(--cds-layer-02); position: sticky; top: 0; }
+.cds-data-table th {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-align: left;
+  padding: var(--cds-spacing-03) var(--cds-spacing-04);
+  color: var(--cds-text-secondary);
+  border-bottom: 1px solid var(--cds-border-subtle-01);
+  white-space: nowrap;
+}
+.cds-data-table td {
+  font-size: 13px;
+  padding: var(--cds-spacing-03) var(--cds-spacing-04);
+  border-bottom: 1px solid var(--cds-border-subtle-00);
+  white-space: nowrap;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.cds-data-table td.name-cell { font-family: 'IBM Plex Sans', sans-serif; }
+.cds-data-table tr.selectable { cursor: pointer; }
+.cds-data-table tr.selectable:hover td { background: var(--cds-layer-02); }
+.cds-data-table tr.selected td { background: var(--cds-highlight); }
+
+/* selected account display */
+.cds-selected-account {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  margin-top: var(--cds-spacing-04);
+  padding: var(--cds-spacing-03) var(--cds-spacing-04);
+  background: var(--cds-layer-02);
+  border-left: 3px solid var(--cds-interactive);
+  min-height: 36px;
+  font-size: 13px;
+  color: var(--cds-text-secondary);
+}
+.cds-selected-account.has-value { color: var(--cds-text-primary); }
+.cds-selected-account code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--cds-text-secondary);
+}
+
+/* ── Inline Notification ─────────────────────────────────────────────────── */
+.cds-inline-notification {
+  display: none;
+  align-items: flex-start;
+  gap: var(--cds-spacing-04);
+  padding: var(--cds-spacing-04) var(--cds-spacing-05);
+  border-left: 3px solid;
+  margin-bottom: var(--cds-spacing-03);
+}
+.cds-inline-notification.visible { display: flex; }
+.cds-inline-notification--success {
+  background: var(--cds-notification-success-background);
+  border-color: var(--cds-support-success);
+}
+.cds-inline-notification--error {
+  background: var(--cds-notification-error-background);
+  border-color: var(--cds-support-error);
+}
+.cds-inline-notification--info {
+  background: var(--cds-notification-info-background);
+  border-color: var(--cds-support-info);
+}
+.notif-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.notif-content { flex: 1; }
+.notif-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.notif-subtitle { font-size: 13px; color: var(--cds-text-secondary); }
+
+/* ── Transaction Log ─────────────────────────────────────────────────────── */
+#log {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.log-entry {
+  background: var(--cds-layer-01);
+  border-left: 3px solid var(--cds-border-subtle-01);
+  padding: var(--cds-spacing-03) var(--cds-spacing-04);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.log-entry.log-ok   { border-color: var(--cds-support-success); }
+.log-entry.log-err  { border-color: var(--cds-support-error); }
+.log-entry.log-info { border-color: var(--cds-support-info); }
+.log-ts   { color: var(--cds-text-secondary); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.log-req  { color: var(--cds-interactive); font-family: 'IBM Plex Mono', monospace; }
+.log-res-ok  { color: var(--cds-support-success); font-weight: 600; }
+.log-res-err { color: var(--cds-support-error); font-weight: 600; }
+.log-body { color: var(--cds-text-secondary); font-family: 'IBM Plex Mono', monospace; word-break: break-all; }
+.log-empty { color: var(--cds-text-secondary); font-size: 13px; text-align: center; padding: var(--cds-spacing-06); }
+
+/* ── Loading spinner (Carbon style) ─────────────────────────────────────── */
+.cds-loading-inline {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #c6c6c6;
+  border-top-color: var(--cds-interactive);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>🔧 Transaction Tester</h1>
 
-  <div class="card">
-    <h2>1. URL del webhook</h2>
-    <input type="text" id="url" placeholder="https://.../runflow/run/sync/v2/...">
-    <small class="hint">Se guarda en este navegador.</small>
-  </div>
+<!-- ── Header ────────────────────────────────────────────────────────────── -->
+<header class="cds-header">
+  <a class="cds-header__name" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32" fill="#0f62fe" aria-hidden="true">
+      <path d="M16 2a14 14 0 1 0 14 14A14 14 0 0 0 16 2zm-1 21v-8h-3v-2h5v10zm0-14v-2h2v2z"/>
+    </svg>
+    Bootcamp Integración <span>/ Transaction Tester</span>
+  </a>
+</header>
 
-  <div class="card">
-    <h2>2. Cuenta</h2>
-    <div class="row">
-      <button id="cargarBtn">Cargar cuentas</button>
-      <span id="cuentasStatus" class="dim"></span>
+<!-- ── Page content ──────────────────────────────────────────────────────── -->
+<main class="page-content">
+
+  <!-- 1. Webhook URL -->
+  <section>
+    <p class="section-title">1 — Webhook URL</p>
+    <div class="cds-tile">
+      <div class="cds-form-item">
+        <label class="cds-label" for="url">URL del workflow (IWHI)</label>
+        <input class="cds-text-input" type="text" id="url"
+               placeholder="https://.../runflow/run/sync/v2/...">
+        <span class="cds-helper-text">La URL se guarda automáticamente en este navegador.</span>
+      </div>
     </div>
-    <div id="cuentasBox">
-      <table>
-        <thead><tr><th>Cuenta</th><th>Nombre</th><th>Tipo</th><th>Saldo</th></tr></thead>
-        <tbody id="cuentasBody"></tbody>
-      </table>
+  </section>
+
+  <!-- 2. Cuenta -->
+  <section>
+    <p class="section-title">2 — Cuenta origen</p>
+    <div class="cds-tile">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button class="cds-btn cds-btn--secondary" id="cargarBtn">Cargar cuentas</button>
+        <span id="cuentasStatus" style="font-size:13px; color:var(--cds-text-secondary);"></span>
+      </div>
+      <div class="cds-data-table-wrapper" id="cuentasBox">
+        <table class="cds-data-table">
+          <thead>
+            <tr>
+              <th>Nº Cuenta</th>
+              <th>Titular</th>
+              <th>Tipo</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="cuentasBody"></tbody>
+        </table>
+      </div>
+      <div class="cds-selected-account" id="selCuenta">
+        <span>Sin cuenta seleccionada</span>
+      </div>
     </div>
-    <div id="selCuenta">Sin cuenta seleccionada</div>
+  </section>
+
+  <!-- 3. Monto -->
+  <section>
+    <p class="section-title">3 — Monto de transferencia</p>
+    <div class="cds-tile">
+      <div class="cds-form-item">
+        <label class="cds-label" for="monto">Monto (USD)</label>
+        <input class="cds-text-input" type="number" id="monto"
+               min="1" step="1" placeholder="0" style="font-family:'IBM Plex Mono',monospace;">
+      </div>
+    </div>
+  </section>
+
+  <!-- Send button -->
+  <div>
+    <button class="cds-btn cds-btn--primary cds-btn--full" id="enviarBtn" disabled>
+      Enviar transacción
+    </button>
   </div>
 
-  <div class="card">
-    <h2>3. Monto</h2>
-    <input type="number" id="monto" min="1" step="1" placeholder="Monto">
-
+  <!-- Result notification -->
+  <div id="notifSuccess" class="cds-inline-notification cds-inline-notification--success">
+    <span class="notif-icon">✅</span>
+    <div class="notif-content">
+      <p class="notif-title">Transacción aprobada</p>
+      <p class="notif-subtitle" id="notifSuccessMsg"></p>
+    </div>
+  </div>
+  <div id="notifError" class="cds-inline-notification cds-inline-notification--error">
+    <span class="notif-icon">❌</span>
+    <div class="notif-content">
+      <p class="notif-title">Transacción rechazada</p>
+      <p class="notif-subtitle" id="notifErrorMsg"></p>
+    </div>
   </div>
 
-  <button id="enviarBtn" disabled>Enviar transacción</button>
+  <!-- 4. Transaction log -->
+  <section>
+    <p class="section-title">Registro de transacciones</p>
+    <div class="cds-tile" style="padding:0; overflow:hidden;">
+      <div id="log">
+        <div class="log-empty" id="logEmpty">Sin transacciones aún.</div>
+      </div>
+    </div>
+  </section>
 
-  <div class="card" style="margin-top:10px;">
-    <h2>Registro</h2>
-    <div id="log"></div>
-  </div>
-</div>
+</main>
 
 <script>
-const urlInput = document.getElementById('url');
+const urlInput   = document.getElementById('url');
 const montoInput = document.getElementById('monto');
-const selCuenta = document.getElementById('selCuenta');
-const enviarBtn = document.getElementById('enviarBtn');
-const log = document.getElementById('log');
+const selCuenta  = document.getElementById('selCuenta');
+const enviarBtn  = document.getElementById('enviarBtn');
+const log        = document.getElementById('log');
+const logEmpty   = document.getElementById('logEmpty');
+
 let cuentaSeleccionada = null;
 
+// Persist URL
 urlInput.value = localStorage.getItem('tt_url') || '';
 urlInput.addEventListener('input', () => {
-  localStorage.setItem('tt_url', urlInput.value);
+  localStorage.setItem('tt_url', urlInput.value.trim());
   actualizarBoton();
 });
 montoInput.addEventListener('input', actualizarBoton);
@@ -122,76 +424,140 @@ function actualizarBoton() {
   enviarBtn.disabled = !(urlInput.value.trim() && cuentaSeleccionada && montoInput.value.trim());
 }
 
+// ── Load accounts ───────────────────────────────────────────────────────────
 document.getElementById('cargarBtn').onclick = async () => {
   const status = document.getElementById('cuentasStatus');
-  status.textContent = 'Cargando...';
+  status.innerHTML = '<span class="cds-loading-inline"></span> Cargando...';
   try {
-    const res = await fetch('/api/cuentas');
+    const res  = await fetch('/api/cuentas');
     const data = await res.json();
     if (!res.ok) { status.textContent = 'Error: ' + (data.error || res.status); return; }
+
     const body = document.getElementById('cuentasBody');
     body.innerHTML = '';
     data.forEach(c => {
       const tr = document.createElement('tr');
-      tr.className = 'acc-row';
-      tr.innerHTML = `<td>${c.numero_cuenta.slice(-8)}</td><td>${c.nombre} ${c.apellido}</td><td>${c.tipo_cuenta}</td><td>${c.saldo}</td>`;
+      tr.className = 'selectable';
+      tr.innerHTML = `
+        <td>${c.numero_cuenta.slice(-8)}</td>
+        <td class="name-cell">${escHtml(c.nombre)} ${escHtml(c.apellido)}</td>
+        <td>${escHtml(c.tipo_cuenta)}</td>
+        <td>$${Number(c.saldo).toLocaleString()}</td>`;
       tr.onclick = () => {
-        document.querySelectorAll('tr.acc-row').forEach(r => r.classList.remove('selected'));
+        document.querySelectorAll('#cuentasBody tr').forEach(r => r.classList.remove('selected'));
         tr.classList.add('selected');
         cuentaSeleccionada = c.numero_cuenta;
-        selCuenta.textContent = `${c.numero_cuenta} — ${c.nombre} ${c.apellido}`;
+        selCuenta.innerHTML = `<code>${c.numero_cuenta}</code>&nbsp;—&nbsp;${escHtml(c.nombre)} ${escHtml(c.apellido)}`;
+        selCuenta.classList.add('has-value');
         actualizarBoton();
       };
       body.appendChild(tr);
     });
+
     document.getElementById('cuentasBox').style.display = 'block';
-    status.textContent = `${data.length} cuentas`;
+    status.textContent = `${data.length} cuenta${data.length !== 1 ? 's' : ''} cargada${data.length !== 1 ? 's' : ''}`;
   } catch (e) {
     status.textContent = 'Error: ' + e;
   }
 };
 
+// ── Send transaction ────────────────────────────────────────────────────────
 enviarBtn.onclick = async () => {
-  const url = urlInput.value.trim();
+  const url   = urlInput.value.trim();
   const monto = parseInt(montoInput.value, 10);
   enviarBtn.disabled = true;
-  const ts = new Date().toLocaleTimeString();
+  enviarBtn.textContent = 'Enviando...';
+  hideNotifications();
+
+  const ts = new Date().toLocaleTimeString('es-ES', { hour12: false });
 
   try {
-    const res = await fetch('/api/enviar', {
-      method: 'POST',
+    const res  = await fetch('/api/enviar', {
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, numero_cuenta: cuentaSeleccionada, monto }),
+      body:    JSON.stringify({ url, numero_cuenta: cuentaSeleccionada, monto }),
     });
     const data = await res.json();
-    const entry = document.createElement('div');
-    entry.className = 'entry';
-    if (data.ok) {
-      entry.innerHTML = `
-        <div class="dim">[${ts}]</div>
-        <div class="req">→ REQUEST  ${data.sent.numero_cuenta}  $${data.sent.monto}  trx_id=${data.sent.trx_id}</div>
-        <div class="${data.status_code < 400 ? 'ok' : 'err'}">← RESPONSE  ${data.status_code}</div>
-        <div class="dim">${escapeHtml(data.response_body)}</div>`;
-    } else {
-      entry.innerHTML = `
-        <div class="dim">[${ts}]</div>
-        <div class="req">→ REQUEST  ${data.sent.numero_cuenta}  $${data.sent.monto}  trx_id=${data.sent.trx_id}</div>
-        <div class="err">← ERROR</div>
-        <div class="dim">${escapeHtml(data.error)}</div>`;
+
+    // ── Parse IWHI response ─────────────────────────────────────────────────
+    let parsedBody = null;
+    try { parsedBody = JSON.parse(data.response_body); } catch (_) {}
+
+    const isHttpOk = data.ok && data.status_code < 400;
+
+    // Show inline notification based on IWHI response field
+    if (isHttpOk && parsedBody) {
+      const resultado = (parsedBody.resultado || '').toLowerCase();
+      if (resultado === 'aprobado' || resultado === 'approved') {
+        showNotif('success', buildSuccessMsg(parsedBody, data.sent));
+      } else if (resultado === 'rechazado' || resultado === 'rejected' || resultado === 'denied') {
+        showNotif('error', buildErrorMsg(parsedBody, data.sent));
+      } else if (isHttpOk) {
+        showNotif('success', `HTTP ${data.status_code} — ${escHtml(data.response_body.slice(0, 120))}`);
+      }
+    } else if (!data.ok) {
+      showNotif('error', data.error || 'Error de conexión');
+    } else if (!isHttpOk) {
+      showNotif('error', `HTTP ${data.status_code} — ${escHtml(data.response_body.slice(0, 120))}`);
     }
-    log.prepend(entry);
+
+    // ── Log entry ───────────────────────────────────────────────────────────
+    const entry = document.createElement('div');
+    entry.className = 'log-entry ' + (data.ok && isHttpOk ? 'log-ok' : 'log-err');
+    entry.innerHTML = `
+      <div class="log-ts">[${ts}]&nbsp;&nbsp;trx_id: ${escHtml(data.sent?.trx_id ?? '')}</div>
+      <div class="log-req">→ ${escHtml(data.sent?.numero_cuenta ?? '')} &nbsp; $${Number(data.sent?.monto ?? 0).toLocaleString()}</div>
+      <div class="${isHttpOk ? 'log-res-ok' : 'log-res-err'}">← ${data.ok ? 'HTTP ' + data.status_code : 'ERROR'}</div>
+      <div class="log-body">${escHtml(data.response_body ?? data.error ?? '')}</div>`;
+
+    if (logEmpty) logEmpty.remove();
+    log.insertBefore(entry, log.firstChild);
+
   } catch (e) {
     const entry = document.createElement('div');
-    entry.className = 'entry';
-    entry.innerHTML = `<div class="dim">[${ts}]</div><div class="err">← ERROR</div><div class="dim">${escapeHtml(String(e))}</div>`;
-    log.prepend(entry);
+    entry.className = 'log-entry log-err';
+    entry.innerHTML = `<div class="log-ts">[${ts}]</div><div class="log-res-err">← ERROR</div><div class="log-body">${escHtml(String(e))}</div>`;
+    if (logEmpty) logEmpty.remove();
+    log.insertBefore(entry, log.firstChild);
+    showNotif('error', String(e));
   } finally {
+    enviarBtn.textContent = 'Enviar transacción';
     actualizarBoton();
   }
 };
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function hideNotifications() {
+  document.getElementById('notifSuccess').classList.remove('visible');
+  document.getElementById('notifError').classList.remove('visible');
+}
+
+function showNotif(type, msg) {
+  if (type === 'success') {
+    document.getElementById('notifSuccessMsg').textContent = msg;
+    document.getElementById('notifSuccess').classList.add('visible');
+  } else {
+    document.getElementById('notifErrorMsg').textContent = msg;
+    document.getElementById('notifError').classList.add('visible');
+  }
+}
+
+function buildSuccessMsg(body, sent) {
+  const parts = [];
+  if (body.nombre || body.cliente) parts.push(`Cliente: ${body.nombre || body.cliente}`);
+  if (body.saldo !== undefined) parts.push(`Saldo disponible: $${Number(body.saldo).toLocaleString()}`);
+  if (sent?.monto) parts.push(`Monto transferido: $${Number(sent.monto).toLocaleString()}`);
+  return parts.length ? parts.join(' · ') : 'La transferencia fue procesada correctamente.';
+}
+
+function buildErrorMsg(body, sent) {
+  if (body.motivo || body.mensaje || body.message) return body.motivo || body.mensaje || body.message;
+  if (sent?.monto) return `Saldo insuficiente para transferir $${Number(sent.monto).toLocaleString()}.`;
+  return 'La transferencia fue rechazada por saldo insuficiente.';
+}
+
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 }
 
 actualizarBoton();
