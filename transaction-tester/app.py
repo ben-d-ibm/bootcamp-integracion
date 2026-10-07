@@ -46,8 +46,8 @@ def enviar():
     data = request.get_json()
     body = {
         "numero_cuenta": data["numero_cuenta"],
-        "monto": data["monto"],
-        "trx_id": str(uuid.uuid4()),
+        "monto": float(data["monto"]),
+        "trx_id": int(data["trx_id"]),
     }
     try:
         resp = requests.post(data["url"], json=body, timeout=15)
