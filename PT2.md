@@ -14,11 +14,11 @@ Ve a la sección **Integrations → Workflows** dentro de tu proyecto en IBM web
 
 Haz clic en el botón `+` para iniciar la creación. Aparecerá el modal **"Start Building your Workflow"**. Selecciona **Create New Workflow** para construirlo desde cero.
 
-![Modal de inicio — elegir Create New Workflow](images/image_bootcamp_49.png)
+![Modal de inicio — elegir Create New Workflow](images/image_bootcamp_48.png)
 
 Se abrirá el **canvas** del workflow con el panel de conectores a la derecha. El flujo parte de un bloque vacío **Define trigger** que configuraremos a continuación.
 
-![Canvas vacío del workflow con panel de conectores](images/image_bootcamp_48.png)
+![Canvas vacío del workflow con panel de conectores](images/image_bootcamp_49.png)
 
 ---
 
