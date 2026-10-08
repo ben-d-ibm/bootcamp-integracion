@@ -185,16 +185,36 @@
     color: var(--cds-text-helper);
     margin-bottom: 4px;
   }
+  .pre-wrap { position: relative; margin: 8px 0 16px; }
+  .pre-wrap pre { margin: 0; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #393939;
+    color: #c6c6c6;
+    border: none;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 100ms, color 100ms;
+  }
+  .copy-btn:hover { background: #525252; color: #fff; }
+  .copy-btn.copied { background: #198038; color: #fff; }
   pre {
     background: #161616;
     color: #f4f4f4;
-    padding: 16px;
+    padding: 16px 48px 16px 16px;
     overflow-x: auto;
     font-size: 13px;
     font-family: 'IBM Plex Mono', 'Courier New', monospace;
     line-height: 1.5;
     border-radius: 0;
-    margin: 8px 0 16px;
+    margin: 0;
   }
   code {
     font-family: 'IBM Plex Mono', 'Courier New', monospace;
@@ -720,5 +740,24 @@ from clientes clientes where clientes.numero_cuenta = ?</code></pre>
   </div>
 </footer>
 
+<script>
+document.querySelectorAll('pre').forEach(pre => {
+  const wrap = document.createElement('div');
+  wrap.className = 'pre-wrap';
+  pre.parentNode.insertBefore(wrap, pre);
+  wrap.appendChild(pre);
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'Copiar';
+  wrap.appendChild(btn);
+  btn.addEventListener('click', () => {
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+});
+</script>
 </body>
 </html>
