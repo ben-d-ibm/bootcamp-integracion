@@ -191,20 +191,19 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    background: #393939;
-    color: #c6c6c6;
+    background: transparent;
     border: none;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    padding: 4px;
     cursor: pointer;
-    transition: background 100ms, color 100ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8d8d8d;
+    transition: color 100ms;
   }
-  .copy-btn:hover { background: #525252; color: #fff; }
-  .copy-btn.copied { background: #198038; color: #fff; }
+  .copy-btn:hover { color: #f4f4f4; }
+  .copy-btn.copied { color: #42be65; }
+  .copy-btn svg { width: 16px; height: 16px; fill: currentColor; }
   pre {
     background: #161616;
     color: #f4f4f4;
@@ -741,6 +740,8 @@ from clientes clientes where clientes.numero_cuenta = ?</code></pre>
 </footer>
 
 <script>
+const ICON_COPY = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2v1H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 15a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h1v7a2 2 0 0 0 2 2H4v1a1 1 0 0 1-1 1H2zm10-3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10z"/></svg>';
+const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.5 12L1 6.5l1.4-1.4L6.5 9.2 13.6 2 15 3.4z"/></svg>';
 document.querySelectorAll('pre').forEach(pre => {
   const wrap = document.createElement('div');
   wrap.className = 'pre-wrap';
@@ -748,13 +749,14 @@ document.querySelectorAll('pre').forEach(pre => {
   wrap.appendChild(pre);
   const btn = document.createElement('button');
   btn.className = 'copy-btn';
-  btn.textContent = 'Copiar';
+  btn.setAttribute('title', 'Copiar');
+  btn.innerHTML = ICON_COPY;
   wrap.appendChild(btn);
   btn.addEventListener('click', () => {
     navigator.clipboard.writeText(pre.innerText).then(() => {
-      btn.textContent = '✓ Copiado';
+      btn.innerHTML = ICON_CHECK;
       btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(() => { btn.innerHTML = ICON_COPY; btn.classList.remove('copied'); }, 2000);
     });
   });
 });
