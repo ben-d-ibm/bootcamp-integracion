@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta — IBM webMethods Hybrid Integration Bootcamp</title>
+<style>
+  :root {
+    --ibm-blue-60: #0f62fe;
+    --ibm-gray-10: #f4f4f4;
+    --ibm-gray-100: #161616;
+    --cds-text-primary: #161616;
+    --cds-text-secondary: #525252;
+    --cds-text-helper: #6f6f6f;
+    --cds-border-subtle: #e0e0e0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--ibm-gray-100);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Shell header ── */
+  .cds-header {
+    background: #000000;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid #393939;
+    flex-shrink: 0;
+  }
+  .cds-header__name { font-size: 14px; font-weight: 600; color: #fff; text-decoration: none; }
+  .cds-header__name span { font-weight: 300; margin-right: 4px; }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+  }
+
+  .card {
+    background: #262626;
+    border: 1px solid #393939;
+    border-top: 4px solid var(--ibm-blue-60);
+    max-width: 480px;
+    width: 100%;
+    padding: 48px 40px;
+    text-align: center;
+  }
+
+  .card__eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #78a9ff;
+    margin-bottom: 20px;
+  }
+
+  .card__title {
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .card__title strong { font-weight: 600; }
+
+  .card__body {
+    font-size: 14px;
+    color: #c6c6c6;
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  .qr-frame {
+    display: inline-block;
+    background: #ffffff;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .qr-frame img { display: block; width: 200px; height: auto; }
+
+  .qr-hint {
+    font-size: 12px;
+    color: #8d8d8d;
+    margin-bottom: 36px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #393939;
+    margin: 0 0 28px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #78a9ff;
+    text-decoration: none;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  /* ── Footer ── */
+  footer {
+    background: #000000;
+    color: #6f6f6f;
+    padding: 20px 16px;
+    font-size: 12px;
+    text-align: center;
+    border-top: 1px solid #393939;
+    flex-shrink: 0;
+  }
+  footer a { color: #78a9ff; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header class="cds-header">
+  <a class="cds-header__name" href="index.html"><span>IBM</span>webMethods Hybrid Integration</a>
+</header>
+
+<main>
+  <div class="card">
+    <p class="card__eyebrow">Bootcamp completado 🎉</p>
+    <h1 class="card__title">¡Gracias por<br><strong>participar!</strong></h1>
+    <p class="card__body">Escaneá el código QR con tu celular para completar la encuesta de feedback. Tu opinión nos ayuda a mejorar el bootcamp.</p>
+
+    <div class="qr-frame">
+      <img src="img/qr_bootcamp.png" alt="QR Encuesta Bootcamp">
+    </div>
+    <p class="qr-hint">Apuntá la cámara al QR</p>
+
+    <hr class="divider">
+
+    <a class="back-link" href="index.html">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Volver al inicio
+    </a>
+  </div>
+</main>
+
+<footer>
+  © IBM Corporation 2025 — IBM webMethods Hybrid Integration Bootcamp
+</footer>
+
+</body>
+</html>

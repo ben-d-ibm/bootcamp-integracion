@@ -12,3 +12,6 @@ images/bash/
 
 # VS Code workspace settings
 .vscode/
+
+# Carpeta de materiales para participantes (subida a Box)
+participantes/

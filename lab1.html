@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 1 — Ambiente local y FlowService | IBM webMethods Hybrid Integration</title>
+<style>
+  :root {
+    --cds-background: #ffffff;
+    --cds-layer-01: #f4f4f4;
+    --cds-border-subtle: #e0e0e0;
+    --cds-border-strong: #8d8d8d;
+    --cds-text-primary: #161616;
+    --cds-text-secondary: #525252;
+    --cds-text-helper: #6f6f6f;
+    --cds-interactive: #0f62fe;
+    --cds-focus: #0f62fe;
+    --cds-support-success: #198038;
+    --cds-link-primary: #0f62fe;
+    --ibm-blue-60: #0f62fe;
+    --ibm-gray-10: #f4f4f4;
+    --ibm-gray-100: #161616;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cds-background);
+    color: var(--cds-text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Shell header ── */
+  .cds-header {
+    background: var(--ibm-gray-100);
+    color: #fff;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #393939;
+  }
+  .cds-header__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+  }
+  .cds-header__name span { font-weight: 300; margin-right: 4px; }
+  .cds-header__divider { color: #525252; }
+
+  /* ── Breadcrumb bar ── */
+  .breadcrumb-bar {
+    background: var(--ibm-gray-10);
+    border-bottom: 1px solid var(--cds-border-subtle);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--cds-text-helper);
+  }
+  .breadcrumb-bar a { color: var(--cds-link-primary); text-decoration: none; }
+  .breadcrumb-bar a:hover { text-decoration: underline; }
+  .breadcrumb-bar span { margin: 0 6px; }
+
+  /* ── Page header ── */
+  .page-header {
+    background: #001141;
+    color: #fff;
+    padding: 48px 16px 40px;
+    border-bottom: 4px solid var(--ibm-blue-60);
+  }
+  .page-header .page-content { max-width: 1056px; margin: 0 auto; }
+  .page-header__lab {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a8c7fa;
+    margin-bottom: 12px;
+  }
+  .page-header__title {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .page-header__title strong { font-weight: 600; }
+  .page-header__desc {
+    font-size: 14px;
+    color: #c6e0ff;
+    max-width: 700px;
+    line-height: 1.7;
+  }
+
+  /* ── Layout ── */
+  .page-content { max-width: 1056px; margin: 0 auto; padding: 0 16px; }
+
+  /* ── Two-column layout ── */
+  .layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: calc(100vh - 200px); }
+
+  /* ── Side nav ── */
+  .side-nav {
+    border-right: 1px solid var(--cds-border-subtle);
+    padding: 32px 0;
+    position: sticky;
+    top: 48px;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  .side-nav__title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cds-text-helper);
+    padding: 0 16px 12px;
+  }
+  .side-nav a {
+    display: block;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--cds-text-secondary);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.4;
+  }
+  .side-nav a:hover { background: var(--ibm-gray-10); color: var(--cds-text-primary); }
+  .side-nav a.active { border-left-color: var(--ibm-blue-60); color: var(--ibm-blue-60); background: #edf4ff; font-weight: 600; }
+  .side-nav__sub a { padding-left: 28px; font-size: 12px; }
+
+  /* ── Main content ── */
+  .main-content { padding: 40px 40px 64px; }
+
+  /* ── Steps ── */
+  .step {
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--cds-border-subtle);
+    margin-bottom: 48px;
+  }
+  .step:last-child { border-bottom: none; }
+  .step__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--ibm-blue-60);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 50%;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+  .step__header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .step__title { font-size: 20px; font-weight: 400; color: var(--cds-text-primary); }
+  .step__body { font-size: 14px; color: var(--cds-text-secondary); line-height: 1.7; }
+  .step__body p { margin-bottom: 12px; }
+  .step__body p:last-child { margin-bottom: 0; }
+
+  /* ── Sub-steps ── */
+  .substep { margin: 24px 0; }
+  .substep__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cds-text-primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--cds-border-subtle);
+  }
+
+  /* ── Code blocks ── */
+  .code-group { margin: 16px 0; }
+  .code-group__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--cds-text-helper);
+    margin-bottom: 4px;
+  }
+  pre {
+    background: #161616;
+    color: #f4f4f4;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    line-height: 1.5;
+    border-radius: 0;
+    margin: 8px 0 16px;
+  }
+  code {
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 12.5px;
+    background: #e8e8e8;
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: #161616;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: 13px; }
+  .hljs-comment { color: #8d8d8d; }
+  .hljs-keyword { color: #78a9ff; }
+  .hljs-string { color: #42be65; }
+
+  /* ── Tables ── */
+  .cds-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .cds-table thead { background: var(--ibm-gray-10); }
+  .cds-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--cds-text-helper);
+    border-bottom: 1px solid var(--cds-border-subtle);
+  }
+  .cds-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--cds-border-subtle);
+    color: var(--cds-text-secondary);
+    vertical-align: top;
+  }
+  .cds-table tr:last-child td { border-bottom: none; }
+  .cds-table td code { background: #e8e8e8; }
+  .cds-table td:first-child { font-weight: 500; color: var(--cds-text-primary); }
+
+  /* ── Callouts ── */
+  .callout {
+    border-left: 3px solid;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .callout--info { border-color: var(--ibm-blue-60); background: #edf4ff; color: #0043ce; }
+  .callout--warning { border-color: #f1c21b; background: #ffd7003d; color: #6b4f00; }
+  .callout--success { border-color: var(--cds-support-success); background: #defbe6; color: #0e6027; }
+  .callout strong { font-weight: 600; }
+
+  /* ── Images ── */
+  .lab-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--cds-border-subtle);
+    margin: 16px 0;
+  }
+  .img-caption {
+    font-size: 12px;
+    color: var(--cds-text-helper);
+    margin-top: -8px;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  /* ── Navigation buttons ── */
+  .nav-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 32px 0 16px;
+    border-top: 1px solid var(--cds-border-subtle);
+    margin-top: 48px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .btn--primary { background: var(--ibm-blue-60); color: #fff; }
+  .btn--primary:hover { background: #0353e9; }
+  .btn--ghost { background: transparent; color: var(--ibm-blue-60); border: 1px solid var(--ibm-blue-60); }
+  .btn--ghost:hover { background: #edf4ff; }
+
+  /* ── QR section ── */
+  .qr-section {
+    background: var(--ibm-gray-10);
+    border: 1px solid var(--cds-border-subtle);
+    border-top: 4px solid var(--ibm-blue-60);
+    padding: 40px;
+    margin-top: 64px;
+    text-align: center;
+  }
+  .qr-section__title { font-size: 20px; font-weight: 400; margin-bottom: 8px; }
+  .qr-section__sub { font-size: 13px; color: var(--cds-text-secondary); margin-bottom: 24px; }
+  .qr-section img { max-width: 180px; border: 1px solid var(--cds-border-subtle); padding: 8px; background: #fff; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--ibm-gray-100);
+    color: #c6c6c6;
+    padding: 24px 16px;
+    font-size: 12px;
+    margin-top: 0;
+  }
+  footer .page-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  footer a { color: #78a9ff; text-decoration: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .side-nav { display: none; }
+    .main-content { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Shell header -->
+<header class="cds-header">
+  <a class="cds-header__name" href="index.html"><span>IBM</span>webMethods Hybrid Integration</a>
+  <span class="cds-header__divider">/</span>
+  <span style="font-size:13px; color:#c6c6c6;">Lab 1</span>
+</header>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-bar">
+  <div class="page-content">
+    <a href="index.html">Inicio</a>
+    <span>›</span>
+    <span>Lab 1 — Ambiente local y FlowService</span>
+  </div>
+</div>
+
+<!-- Page header -->
+<div class="page-header">
+  <div class="page-content">
+    <p class="page-header__lab">Lab 1 de 2</p>
+    <h1 class="page-header__title">🏗️ Ambiente local y <strong>FlowService</strong></h1>
+    <p class="page-header__desc">Configurá un entorno de integración híbrida real: PostgreSQL on-premise en Docker, Edge Runtime en la misma red y el FlowService <code style="background:#1e3a5f;color:#a8c7fa;padding:2px 6px;">getClientInfo</code> que consulta el saldo de los clientes.</p>
+  </div>
+</div>
+
+<!-- Layout -->
+<div style="max-width:1056px; margin:0 auto;">
+<div class="layout">
+
+  <!-- Side nav -->
+  <nav class="side-nav">
+    <p class="side-nav__title">En este lab</p>
+    <a href="#paso1">Paso 1 — Levantar la BD</a>
+    <a href="#paso2">Paso 2 — Verificar datos</a>
+    <a href="#paso3">Paso 3 — Edge Runtime</a>
+    <a href="#paso4">Paso 4 — Proyecto IWHI</a>
+    <a href="#paso5">Paso 5 — FlowService</a>
+    <div class="side-nav__sub">
+      <a href="#paso5-1">5.1 Crear y asociar Runtime</a>
+      <a href="#paso5-2">5.2 Configurar cuenta DB</a>
+      <a href="#paso5-3">5.3 Configurar Query</a>
+      <a href="#paso5-4">5.4 Pipeline y Test</a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- Hero image -->
+    <img src="img/lab1/lab1-01.png" alt="Arquitectura del ambiente Lab 1" class="lab-img" style="margin-bottom:32px;">
+
+    <!-- PASO 1 -->
+    <section class="step" id="paso1">
+      <div class="step__header">
+        <span class="step__number">1</span>
+        <h2 class="step__title">Levantar la base de datos</h2>
+      </div>
+      <div class="step__body">
+        <p>Corre el siguiente comando según tu entorno. Esto levantará un contenedor con PostgreSQL y ejecutará automáticamente los scripts de inicialización que crearán la tabla <code>clientes</code> y la llenarán con 30 registros dummy.</p>
+
+        <div class="code-group">
+          <p class="code-group__label">Docker</p>
+          <pre><code>docker compose up -d</code></pre>
+        </div>
+        <div class="code-group">
+          <p class="code-group__label">Podman</p>
+          <pre><code>podman-compose up -d</code></pre>
+        </div>
+
+        <div class="callout callout--info">
+          <strong>⏱️ Primera vez:</strong> descarga la imagen (~200 MB). Esperá unos segundos a que el healthcheck de PostgreSQL sea <code>healthy</code> antes de continuar.
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 2 -->
+    <section class="step" id="paso2">
+      <div class="step__header">
+        <span class="step__number">2</span>
+        <h2 class="step__title">Verificar los datos de conexión y la carga de datos</h2>
+      </div>
+      <div class="step__body">
+        <p>Para verificar que los datos se cargaron correctamente, tenés dos alternativas:</p>
+
+        <div class="substep">
+          <p class="substep__title">Alternativa A — desde un cliente SQL (pgAdmin, DBeaver, etc.)</p>
+          <p>Conectate usando estos datos:</p>
+          <table class="cds-table">
+            <thead><tr><th>Parámetro</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Host</td><td><code>localhost</code></td></tr>
+              <tr><td>Puerto</td><td><code>5432</code></td></tr>
+              <tr><td>Base de datos</td><td><code>bootcamp_db</code></td></tr>
+              <tr><td>Usuario</td><td><code>bootcamp_user</code></td></tr>
+              <tr><td>Contraseña</td><td><code>bootcamp_pass</code></td></tr>
+            </tbody>
+          </table>
+          <img src="img/lab1/lab1-02.png" alt="Cliente SQL conectado a bootcamp_db" class="lab-img">
+        </div>
+
+        <div class="substep" id="paso2b">
+          <p class="substep__title">Alternativa B — desde la consola del contenedor</p>
+          <p>Entrá a la consola de PostgreSQL:</p>
+          <div class="code-group">
+            <p class="code-group__label">Docker</p>
+            <pre><code>docker exec -it bootcamp_postgres psql -U bootcamp_user -d bootcamp_db</code></pre>
+          </div>
+          <div class="code-group">
+            <p class="code-group__label">Podman</p>
+            <pre><code>podman exec -it bootcamp_postgres psql -U bootcamp_user -d bootcamp_db</code></pre>
+          </div>
+          <p>En cualquier caso, ejecutá:</p>
+          <pre><code>SELECT * FROM clientes;</code></pre>
+          <p>Deberías ver algo así:</p>
+          <img src="img/lab1/lab1-03.png" alt="Resultado del SELECT * FROM clientes" class="lab-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 3 -->
+    <section class="step" id="paso3">
+      <div class="step__header">
+        <span class="step__number">3</span>
+        <h2 class="step__title">Instalar el IWHI Edge Runtime en la misma red</h2>
+      </div>
+      <div class="step__body">
+        <p>En la consola de IBM Integration, ve a <strong>Manage your runtimes</strong> desde el home:</p>
+        <img src="img/lab1/lab1-04.png" alt="Home de IBM Integration" class="lab-img">
+
+        <p>Hacé clic en <strong>Register runtime</strong> y seleccioná <strong>Edge runtime</strong>:</p>
+        <img src="img/lab1/lab1-05.png" alt="Registrar un nuevo Edge Runtime" class="lab-img">
+
+        <p>En el paso de conexión, hacé clic en <strong>Generate Credentials</strong> para autenticarte con el registry:</p>
+        <img src="img/lab1/lab1-06.png" alt="Wizard de registro — credenciales y descarga de la imagen" class="lab-img">
+
+        <p>Ejecutá los dos comandos que te genera la pantalla. Primero el login:</p>
+        <div class="code-group">
+          <p class="code-group__label">Docker</p>
+          <pre><code>docker login -u "&lt;tu-usuario&gt;" -p "&lt;tu-token&gt;" iwhicr.azurecr.io</code></pre>
+        </div>
+        <div class="code-group">
+          <p class="code-group__label">Podman</p>
+          <pre><code>podman login -u "&lt;tu-usuario&gt;" -p "&lt;tu-token&gt;" iwhicr.azurecr.io</code></pre>
+        </div>
+
+        <p>Y luego el pull de la imagen:</p>
+        <div class="code-group">
+          <p class="code-group__label">Docker</p>
+          <pre><code>docker pull iwhicr.azurecr.io/webmethods-edge-runtime:12.0.5.0</code></pre>
+        </div>
+        <div class="code-group">
+          <p class="code-group__label">Podman</p>
+          <pre><code>podman pull iwhicr.azurecr.io/webmethods-edge-runtime:12.0.5.0</code></pre>
+        </div>
+
+        <div class="callout callout--info">
+          <strong>⏱️</strong> La imagen pesa ~1.5 GB. Puede tardar varios minutos dependiendo de tu conexión.
+        </div>
+
+        <p>Se abrirá el wizard de registro. Definí el nombre del runtime (ej: <code>runtime_beetech</code>):</p>
+        <img src="img/lab1/lab1-07.png" alt="Wizard de registro — Definir nombre" class="lab-img">
+        <img src="img/lab1/lab1-08.png" alt="Wizard de registro — Metadata" class="lab-img">
+
+        <p>También se mostrará el comando de ejecución (<code>docker run</code>) con los tokens de registro:</p>
+        <img src="img/lab1/lab1-09.png" alt="Comando de registro del Runtime" class="lab-img">
+
+        <p>El runtime debe correr dentro de la misma red Docker que Postgres (<code>bootcamp_net</code>). Al comando que te entrega IWHI hacele dos ajustes:</p>
+        <ol style="padding-left:20px; color: var(--cds-text-secondary); line-height:2;">
+          <li>Agregá la flag <code>--network bootcamp_net</code></li>
+          <li>Cambiá el puerto <code>-p 4430:443</code> (el 443 puede estar ocupado en tu máquina)</li>
+        </ol>
+
+        <div class="code-group">
+          <p class="code-group__label">Ejemplo del comando</p>
+          <pre><code>docker run \
+  --network bootcamp_net \
+  -p 5555:5555 \
+  -p 4430:443 \
+  -d \
+  ...</code></pre>
+        </div>
+
+        <div class="callout callout--warning">
+          <strong>⚠️</strong> El token de registro expira en ~15 minutos. Generá el runtime en IWHI, dejá abierta la pantalla y ejecutá el comando inmediatamente.
+        </div>
+
+        <p>Una vez registrado, verificá en <strong>Manage integration runtimes</strong> que figure en estado <code>Ready</code>:</p>
+        <img src="img/lab1/lab1-10.png" alt="Lista de Runtimes — Estado Ready" class="lab-img">
+        <img src="img/lab1/lab1-11.png" alt="Detalle del Runtime y réplicas" class="lab-img">
+      </div>
+    </section>
+
+    <!-- PASO 4 -->
+    <section class="step" id="paso4">
+      <div class="step__header">
+        <span class="step__number">4</span>
+        <h2 class="step__title">Crear el proyecto en IWHI</h2>
+      </div>
+      <div class="step__body">
+        <p>Una vez que el runtime esté registrado, creá un nuevo proyecto donde vas a construir el FlowService. En la sección <strong>Projects</strong>, hacé clic en <strong>New project → Create</strong>:</p>
+        <img src="img/lab1/lab1-12.png" alt="Crear un nuevo proyecto en IWHI" class="lab-img">
+        <p>Completá el formulario con el nombre del proyecto y hacé clic en <strong>Create</strong>:</p>
+        <img src="img/lab1/lab1-13.png" alt="Formulario de nuevo proyecto" class="lab-img">
+      </div>
+    </section>
+
+    <!-- PASO 5 -->
+    <section class="step" id="paso5">
+      <div class="step__header">
+        <span class="step__number">5</span>
+        <h2 class="step__title">Crear el FlowService <code>getClientInfo</code> en IWHI</h2>
+      </div>
+      <div class="step__body">
+
+        <!-- 5.1 -->
+        <div class="substep" id="paso5-1">
+          <p class="substep__title">5.1 — Crear el FlowService y asociar el Runtime</p>
+          <p>Dentro del proyecto creado (ej: <code>bootcamp_beetech</code>), ve a <strong>Flow services</strong> y hacé clic en <strong>+</strong>:</p>
+          <img src="img/lab1/lab1-14.png" alt="Crear nuevo Flow Service" class="lab-img">
+          <p>Seleccioná el tipo <strong>Deploy Anywhere Flow Service</strong>:</p>
+          <img src="img/lab1/lab1-15.png" alt="Seleccionar tipo Deploy Anywhere Flow Service" class="lab-img">
+          <p>En el editor, esquina superior derecha, seleccioná tu Edge Runtime (<code>runtime_beetech</code>):</p>
+          <img src="img/lab1/lab1-16.png" alt="Seleccionar Edge Runtime en el canvas" class="lab-img">
+          <p>Hacé clic en <strong>Sync</strong> para sincronizar:</p>
+          <img src="img/lab1/lab1-17.png" alt="Sincronizar con el runtime" class="lab-img">
+          <p>Asigná el nombre <code>getClientInfo</code> y hacé clic en <strong>Save</strong>:</p>
+          <img src="img/lab1/lab1-18.png" alt="Guardar Flow Service con nombre getClientInfo" class="lab-img">
+        </div>
+
+        <!-- 5.2 -->
+        <div class="substep" id="paso5-2">
+          <p class="substep__title">5.2 — Configurar la cuenta y conexión a la base de datos</p>
+          <p>En el canvas, hacé clic en <strong>+</strong> para agregar el primer paso y buscá el conector <strong>Database</strong>:</p>
+          <img src="img/lab1/lab1-19.png" alt="Seleccionar conector Database" class="lab-img">
+          <p>Seleccioná <strong>Add Custom Action</strong>:</p>
+          <img src="img/lab1/lab1-20.png" alt="Agregar Custom Action en Database" class="lab-img">
+          <p>Definí el <strong>Action name</strong> como <code>getClientInfo</code> y hacé clic para crear la cuenta:</p>
+          <img src="img/lab1/lab1-21.png" alt="Configurar Action getClientInfo y seleccionar cuenta" class="lab-img">
+          <p>Hacé clic en <strong>Add account</strong>, definí el nombre <code>postgres_bootcamp</code>, seleccioná tu runtime y hacé clic en <strong>Next</strong>:</p>
+          <img src="img/lab1/lab1-22.png" alt="Crear cuenta postgres_bootcamp" class="lab-img">
+          <p>Subí el driver JDBC de PostgreSQL (<code>postgresql-42.7.9.jar</code> disponible en la raíz del repositorio):</p>
+          <img src="img/lab1/lab1-23.png" alt="Cargar driver JDBC PostgreSQL" class="lab-img">
+          <p>En <strong>Basic configuration</strong>, completá los datos de conexión:</p>
+          <table class="cds-table">
+            <thead><tr><th>Parámetro</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Database</td><td><code>POSTGRESQL</code></td></tr>
+              <tr><td>Transaction type</td><td><code>NO_TRANSACTION</code></td></tr>
+              <tr><td>DataSource class</td><td><code>org.postgresql.ds.PGSimpleDataSource</code></td></tr>
+              <tr><td>Driver group</td><td><code>JDBC</code></td></tr>
+              <tr><td>Server name</td><td><code>postgres</code></td></tr>
+              <tr><td>Port number</td><td><code>5432</code></td></tr>
+              <tr><td>Database name</td><td><code>bootcamp_db</code></td></tr>
+              <tr><td>User</td><td><code>bootcamp_user</code></td></tr>
+              <tr><td>Password</td><td><code>bootcamp_pass</code></td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout--info">
+            <strong>💡</strong> El host es <code>postgres</code> (no <code>localhost</code>) porque el runtime corre dentro de la misma red Docker que el contenedor de PostgreSQL.
+          </div>
+          <img src="img/lab1/lab1-24.png" alt="Formulario de configuración de cuenta" class="lab-img">
+          <img src="img/lab1/lab1-25.png" alt="Datos de conexión completados" class="lab-img">
+          <p>Hacé clic en <strong>Next</strong>. Se sincronizarán los assets en el Edge Runtime:</p>
+          <img src="img/lab1/lab1-26.png" alt="Sincronización de assets en Edge Runtime" class="lab-img">
+          <p>Hacé clic en <strong>Test connection</strong>:</p>
+          <img src="img/lab1/lab1-27.png" alt="Test connection de la cuenta" class="lab-img">
+          <p>Verificá el mensaje de éxito y hacé clic en <strong>Enable</strong>:</p>
+          <img src="img/lab1/lab1-28.png" alt="Test de conexión exitoso" class="lab-img">
+          <p>Confirmá que la cuenta quede habilitada y hacé clic en <strong>Done</strong>:</p>
+          <img src="img/lab1/lab1-29.png" alt="Cuenta habilitada con éxito" class="lab-img">
+          <p>Seleccioná la cuenta <code>postgres_bootcamp</code> y hacé clic en <strong>Next</strong>:</p>
+          <img src="img/lab1/lab1-30.png" alt="Cuenta seleccionada en la acción" class="lab-img">
+        </div>
+
+        <!-- 5.3 -->
+        <div class="substep" id="paso5-3">
+          <p class="substep__title">5.3 — Configurar la acción <code>getClientInfo</code> (Query a <code>clientes</code>)</p>
+          <p>Seleccioná el tipo de operación <strong>Select</strong>:</p>
+          <img src="img/lab1/lab1-31.png" alt="Seleccionar operación Select" class="lab-img">
+          <p>En <strong>Tables</strong>, hacé clic en <strong>+</strong> para agregar la tabla:</p>
+          <img src="img/lab1/lab1-32.png" alt="Paso Tables — Agregar tabla" class="lab-img">
+          <p>Desplegá <code>bootcamp_db → public</code> y seleccioná <code>clientes</code>:</p>
+          <img src="img/lab1/lab1-33.png" alt="Seleccionar tabla public.clientes" class="lab-img">
+          <img src="img/lab1/lab1-34.png" alt="Tabla agregada con alias" class="lab-img">
+          <img src="img/lab1/lab1-35.png" alt="Alias de tabla clientes" class="lab-img">
+          <p>En <strong>Joins</strong>, no es necesario agregar joins. Hacé clic en <strong>Next</strong>:</p>
+          <img src="img/lab1/lab1-36.png" alt="Paso Joins" class="lab-img">
+          <p>En <strong>Data fields</strong>, hacé clic en <strong>+</strong> para agregar los campos a retornar:</p>
+          <img src="img/lab1/lab1-37.png" alt="Paso Data fields" class="lab-img">
+          <img src="img/lab1/lab1-38.png" alt="Seleccionar campos de clientes" class="lab-img">
+          <img src="img/lab1/lab1-39.png" alt="Lista de campos seleccionados" class="lab-img">
+          <p>En <strong>Condition</strong>, configurá el <code>WHERE</code> para filtrar por número de cuenta:</p>
+          <img src="img/lab1/lab1-40.png" alt="Paso Condition — WHERE" class="lab-img">
+          <img src="img/lab1/lab1-41.png" alt="Seleccionar campo numero_cuenta para condición" class="lab-img">
+          <p>Definí la condición con operador <code>=</code> y placeholder <code>?</code>:</p>
+          <pre><code>clientes.numero_cuenta = ?</code></pre>
+          <img src="img/lab1/lab1-42.png" alt="Configuración del parámetro numero_cuenta en WHERE" class="lab-img">
+          <p>Revisá el <strong>Summary</strong> con la SQL generada y hacé clic en <strong>Done</strong>:</p>
+          <pre><code>Select clientes.id as id_1, clientes.numero_cuenta as numero_cuenta,
+clientes.nombre as nombre_1, clientes.apellido as apellido_1,
+clientes.email as email_1, clientes.telefono as telefono_1,
+clientes.fecha_nacimiento as fecha_nacimiento_1,
+clientes.tipo_cuenta as tipo_cuenta_1, clientes.saldo as saldo_1,
+clientes.activo as activo_1, clientes.fecha_alta as fecha_alta_1
+from clientes clientes where clientes.numero_cuenta = ?</code></pre>
+          <img src="img/lab1/lab1-43.png" alt="Resumen de la acción SQL" class="lab-img">
+          <img src="img/lab1/lab1-44.png" alt="Acción agregada al canvas" class="lab-img">
+        </div>
+
+        <!-- 5.4 -->
+        <div class="substep" id="paso5-4">
+          <p class="substep__title">5.4 — Configurar Signature (Input/Output), Pipeline Mappings y Testear</p>
+          <p>Abrí la vista de <strong>Pipeline / I/O</strong> del Flow Service:</p>
+          <img src="img/lab1/lab1-45.png" alt="Vista de Pipeline inicial" class="lab-img">
+          <img src="img/lab1/lab1-46.png" alt="Detalle de I/O en Pipeline" class="lab-img">
+          <p>En <strong>Define input and output fields</strong>, agregá en <strong>Input Fields</strong> el campo <code>numero_cuenta</code> de tipo <code>String</code> como requerido:</p>
+          <img src="img/lab1/lab1-47.png" alt="Definir Input Field numero_cuenta" class="lab-img">
+          <p>En el mapeo de Pipeline, mapeá <code>Pipeline Input → numero_cuenta</code> hacia <code>doc getClientInfo_Input → numero_cuenta_1</code>:</p>
+          <img src="img/lab1/lab1-48.png" alt="Mapeo de Input numero_cuenta hacia la acción" class="lab-img">
+          <img src="img/lab1/lab1-49.png" alt="Detalle del enlace de mapeo de entrada" class="lab-img">
+          <img src="img/lab1/lab1-50.png" alt="Pipeline mapping completado" class="lab-img">
+          <p>Para probar, podés usar alguno de estos números de cuenta:</p>
+          <table class="cds-table">
+            <thead><tr><th>Número de cuenta</th><th>Nombre</th><th>Tipo</th><th>Saldo</th></tr></thead>
+            <tbody>
+              <tr><td><code>ES0100010001001234567890</code></td><td>Lucía Fernández Torres</td><td>AHORRO</td><td>$12,540.75</td></tr>
+              <tr><td><code>ES0100010001009876543210</code></td><td>Carlos Ramírez Vega</td><td>CORRIENTE</td><td>$3,200.00</td></tr>
+            </tbody>
+          </table>
+          <p>Hacé clic en <strong>Run</strong> e ingresá el valor de prueba en <code>numero_cuenta</code>:</p>
+          <img src="img/lab1/lab1-51.png" alt="Ejecutar Flow Service con valor de prueba" class="lab-img">
+          <p>Verificá que el resultado sea exitoso (<strong>Run Successful</strong>) retornando el registro completo del cliente con su saldo:</p>
+          <img src="img/lab1/lab1-52.png" alt="Resultado exitoso de ejecución del Flow Service" class="lab-img">
+
+          <div class="callout callout--success">
+            <strong>✅ ¡Listo!</strong> El FlowService <code>getClientInfo</code> está configurado y probado. El ambiente híbrido está listo para construir el workflow en el Lab 2.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Nav actions -->
+    <div class="nav-actions">
+      <a class="btn btn--ghost" href="index.html">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Volver al inicio
+      </a>
+      <a class="btn btn--primary" href="lab2.html">
+        Continuar a Lab 2
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<footer>
+  <div class="page-content">
+    <span>© IBM Corporation 2025 — IBM webMethods Hybrid Integration Bootcamp</span>
+    <a href="index.html">← Volver al inicio</a>
+  </div>
+</footer>
+
+</body>
+</html>

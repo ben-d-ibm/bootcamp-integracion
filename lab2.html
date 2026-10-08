@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 2 — Workflow en IWHI | IBM webMethods Hybrid Integration</title>
+<style>
+  :root {
+    --cds-background: #ffffff;
+    --cds-layer-01: #f4f4f4;
+    --cds-border-subtle: #e0e0e0;
+    --cds-border-strong: #8d8d8d;
+    --cds-text-primary: #161616;
+    --cds-text-secondary: #525252;
+    --cds-text-helper: #6f6f6f;
+    --cds-interactive: #0f62fe;
+    --cds-focus: #0f62fe;
+    --cds-support-success: #198038;
+    --cds-link-primary: #0f62fe;
+    --ibm-blue-60: #0f62fe;
+    --ibm-gray-10: #f4f4f4;
+    --ibm-gray-100: #161616;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cds-background);
+    color: var(--cds-text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .cds-header {
+    background: var(--ibm-gray-100);
+    color: #fff;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #393939;
+  }
+  .cds-header__name { font-size: 14px; font-weight: 600; color: #fff; text-decoration: none; }
+  .cds-header__name span { font-weight: 300; margin-right: 4px; }
+  .cds-header__divider { color: #525252; }
+
+  .breadcrumb-bar {
+    background: var(--ibm-gray-10);
+    border-bottom: 1px solid var(--cds-border-subtle);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--cds-text-helper);
+  }
+  .breadcrumb-bar a { color: var(--cds-link-primary); text-decoration: none; }
+  .breadcrumb-bar a:hover { text-decoration: underline; }
+  .breadcrumb-bar span { margin: 0 6px; }
+
+  .page-header {
+    background: #001141;
+    color: #fff;
+    padding: 48px 16px 40px;
+    border-bottom: 4px solid var(--ibm-blue-60);
+  }
+  .page-header .page-content { max-width: 1056px; margin: 0 auto; }
+  .page-header__lab { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #a8c7fa; margin-bottom: 12px; }
+  .page-header__title { font-size: clamp(24px, 4vw, 36px); font-weight: 300; line-height: 1.2; margin-bottom: 16px; }
+  .page-header__title strong { font-weight: 600; }
+  .page-header__desc { font-size: 14px; color: #c6e0ff; max-width: 700px; line-height: 1.7; }
+
+  .page-content { max-width: 1056px; margin: 0 auto; padding: 0 16px; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: calc(100vh - 200px); }
+
+  .side-nav {
+    border-right: 1px solid var(--cds-border-subtle);
+    padding: 32px 0;
+    position: sticky;
+    top: 48px;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  .side-nav__title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cds-text-helper); padding: 0 16px 12px; }
+  .side-nav a { display: block; padding: 10px 16px; font-size: 13px; color: var(--cds-text-secondary); text-decoration: none; border-left: 3px solid transparent; line-height: 1.4; }
+  .side-nav a:hover { background: var(--ibm-gray-10); color: var(--cds-text-primary); }
+  .side-nav a.active { border-left-color: var(--ibm-blue-60); color: var(--ibm-blue-60); background: #edf4ff; font-weight: 600; }
+  .side-nav__sub a { padding-left: 28px; font-size: 12px; }
+
+  .main-content { padding: 40px 40px 64px; }
+
+  .step { padding-bottom: 48px; border-bottom: 1px solid var(--cds-border-subtle); margin-bottom: 48px; }
+  .step:last-child { border-bottom: none; }
+  .step__number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--ibm-blue-60); color: #fff; font-size: 13px; font-weight: 600; border-radius: 50%; margin-bottom: 16px; flex-shrink: 0; }
+  .step__header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .step__title { font-size: 20px; font-weight: 400; color: var(--cds-text-primary); }
+  .step__body { font-size: 14px; color: var(--cds-text-secondary); line-height: 1.7; }
+  .step__body p { margin-bottom: 12px; }
+  .step__body p:last-child { margin-bottom: 0; }
+
+  .substep { margin: 24px 0; }
+  .substep__title { font-size: 15px; font-weight: 600; color: var(--cds-text-primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--cds-border-subtle); }
+
+  .code-group { margin: 16px 0; }
+  .code-group__label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 4px; }
+  pre { background: #161616; color: #f4f4f4; padding: 16px; overflow-x: auto; font-size: 13px; font-family: 'IBM Plex Mono', 'Courier New', monospace; line-height: 1.5; border-radius: 0; margin: 8px 0 16px; }
+  code { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 12.5px; background: #e8e8e8; padding: 1px 5px; border-radius: 2px; color: #161616; }
+  pre code { background: none; padding: 0; color: inherit; font-size: 13px; }
+
+  .cds-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .cds-table thead { background: var(--ibm-gray-10); }
+  .cds-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--cds-text-helper); border-bottom: 1px solid var(--cds-border-subtle); }
+  .cds-table td { padding: 10px 14px; border-bottom: 1px solid var(--cds-border-subtle); color: var(--cds-text-secondary); vertical-align: top; }
+  .cds-table tr:last-child td { border-bottom: none; }
+  .cds-table td code { background: #e8e8e8; }
+  .cds-table td:first-child { font-weight: 500; color: var(--cds-text-primary); }
+
+  .callout { border-left: 3px solid; padding: 12px 16px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+  .callout--info { border-color: var(--ibm-blue-60); background: #edf4ff; color: #0043ce; }
+  .callout--warning { border-color: #f1c21b; background: #ffd7003d; color: #6b4f00; }
+  .callout--success { border-color: var(--cds-support-success); background: #defbe6; color: #0e6027; }
+  .callout strong { font-weight: 600; }
+
+  .lab-img { display: block; max-width: 100%; height: auto; border: 1px solid var(--cds-border-subtle); margin: 16px 0; }
+  .img-caption { font-size: 12px; color: var(--cds-text-helper); margin-top: -8px; margin-bottom: 16px; }
+
+  .nav-actions { display: flex; justify-content: space-between; align-items: center; padding: 32px 0 16px; border-top: 1px solid var(--cds-border-subtle); margin-top: 48px; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 24px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; line-height: 1; }
+  .btn--primary { background: var(--ibm-blue-60); color: #fff; }
+  .btn--primary:hover { background: #0353e9; }
+  .btn--ghost { background: transparent; color: var(--ibm-blue-60); border: 1px solid var(--ibm-blue-60); }
+  .btn--ghost:hover { background: #edf4ff; }
+
+  .qr-section { background: var(--ibm-gray-10); border: 1px solid var(--cds-border-subtle); border-top: 4px solid var(--ibm-blue-60); padding: 40px; margin-top: 64px; text-align: center; }
+  .qr-section__title { font-size: 20px; font-weight: 400; margin-bottom: 8px; }
+  .qr-section__sub { font-size: 13px; color: var(--cds-text-secondary); margin-bottom: 24px; }
+  .qr-section img { max-width: 180px; border: 1px solid var(--cds-border-subtle); padding: 8px; background: #fff; }
+
+  footer { background: var(--ibm-gray-100); color: #c6c6c6; padding: 24px 16px; font-size: 12px; }
+  footer .page-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  footer a { color: #78a9ff; text-decoration: none; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .side-nav { display: none; }
+    .main-content { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="cds-header">
+  <a class="cds-header__name" href="index.html"><span>IBM</span>webMethods Hybrid Integration</a>
+  <span class="cds-header__divider">/</span>
+  <span style="font-size:13px; color:#c6c6c6;">Lab 2</span>
+</header>
+
+<div class="breadcrumb-bar">
+  <div class="page-content">
+    <a href="index.html">Inicio</a>
+    <span>›</span>
+    <a href="lab1.html">Lab 1 — Ambiente local y FlowService</a>
+    <span>›</span>
+    <span>Lab 2 — Workflow en IWHI</span>
+  </div>
+</div>
+
+<div class="page-header">
+  <div class="page-content">
+    <p class="page-header__lab">Lab 2 de 2</p>
+    <h1 class="page-header__title">⚙️ Creación de <strong>Workflow en IWHI</strong></h1>
+    <p class="page-header__desc">Construí el Workflow de orquestación: Webhook de entrada, FlowService on-premise para consultar el saldo, Switch condicional y respuestas de aprobación o rechazo. Finalmente, probalo end-to-end con el Transaction Tester.</p>
+  </div>
+</div>
+
+<div style="max-width:1056px; margin:0 auto;">
+<div class="layout">
+
+  <nav class="side-nav">
+    <p class="side-nav__title">En este lab</p>
+    <a href="#paso1">Paso 1 — Crear Workflow</a>
+    <div class="side-nav__sub">
+      <a href="#paso1-1">1.1 Trigger Webhook</a>
+    </div>
+    <a href="#paso2">Paso 2 — FlowService</a>
+    <div class="side-nav__sub">
+      <a href="#paso2-1">2.1 Buscar conector</a>
+      <a href="#paso2-2">2.2 Configurar Runtime</a>
+      <a href="#paso2-3">2.3 Mapeo de parámetros</a>
+      <a href="#paso2-4">2.4 Probar acción</a>
+    </div>
+    <a href="#paso3">Paso 3 — Switch</a>
+    <a href="#paso4">Paso 4 — Return Blocks</a>
+    <a href="#paso5">Paso 5 — Condiciones</a>
+    <div class="side-nav__sub">
+      <a href="#paso5-1">5.1 Case 1 — Aprobado</a>
+      <a href="#paso5-2">5.2 Default — Rechazado</a>
+    </div>
+    <a href="#paso6">Paso 6 — Respuestas</a>
+    <div class="side-nav__sub">
+      <a href="#paso6-1">6.1 Caso Aprobación</a>
+      <a href="#paso6-2">6.2 Caso Rechazado</a>
+    </div>
+    <a href="#paso7">Paso 7 — Guardar y Activar</a>
+    <a href="#paso8">Paso 8 — Pruebas E2E</a>
+    <a href="#paso9">Paso 9 — Transaction Tester</a>
+  </nav>
+
+  <main class="main-content">
+
+    <img src="img/lab2/lab2-01.png" alt="Workflow Transferencias" class="lab-img" style="margin-bottom:32px;">
+
+    <!-- PASO 1 -->
+    <section class="step" id="paso1">
+      <div class="step__header">
+        <span class="step__number">1</span>
+        <h2 class="step__title">Crear el Workflow</h2>
+      </div>
+      <div class="step__body">
+        <p>Ve a <strong>Integrations → Workflows</strong> dentro de tu proyecto en IBM webMethods Integration. Si aún no tenés ningún workflow, verás la pantalla vacía con el botón <code>+</code>.</p>
+        <img src="img/lab2/lab2-02.png" alt="Sección Workflows vacía" class="lab-img">
+        <p>Hacé clic en el botón <code>+</code> y seleccioná <strong>Create New Workflow</strong>.</p>
+        <img src="img/lab2/lab2-03.png" alt="Modal de inicio — elegir Create New Workflow" class="lab-img">
+        <p>Se abrirá el <strong>canvas</strong> del workflow con el panel de conectores a la derecha y el bloque <strong>Define trigger</strong> vacío.</p>
+        <img src="img/lab2/lab2-04.png" alt="Canvas vacío del workflow con panel de conectores" class="lab-img">
+
+        <!-- 1.1 -->
+        <div class="substep" id="paso1-1">
+          <p class="substep__title">1.1 — Configurar el Trigger Webhook</p>
+          <p>Hacé clic en el bloque <strong>Define trigger</strong>. En el catálogo de triggers, seleccioná <strong>Webhook</strong>.</p>
+          <img src="img/lab2/lab2-05.png" alt="Selección del trigger Webhook" class="lab-img">
+
+          <p><strong>Payload de muestra (Mock Data):</strong> copiá la URL temporal que se genera y guardala. Luego ingresá el siguiente JSON en el campo <strong>Body</strong>:</p>
+          <img src="img/lab2/lab2-06.png" alt="Configuración del payload del Webhook" class="lab-img">
+          <pre><code>{
+  "numero_cuenta": "ES0100010001001234567890",
+  "monto": 1000,
+  "trx_id": 1234
+}</code></pre>
+
+          <table class="cds-table">
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>numero_cuenta</code></td><td>string</td><td>Número de cuenta del cliente emisor</td></tr>
+              <tr><td><code>monto</code></td><td>number</td><td>Monto monetario de la transacción</td></tr>
+              <tr><td><code>trx_id</code></td><td>number</td><td>Identificador único de la transacción</td></tr>
+            </tbody>
+          </table>
+
+          <p>Una vez ingresado, hacé clic en <strong>Next</strong>.</p>
+          <img src="img/lab2/lab2-07.png" alt="Confirmación de estructura del payload" class="lab-img">
+
+          <p><strong>Opciones del Webhook:</strong></p>
+          <ul style="padding-left:20px; color: var(--cds-text-secondary); line-height:2.2;">
+            <li><strong>Private webhook:</strong> <code>Off</code></li>
+            <li><strong>Webhook Authentication:</strong> <code>None</code></li>
+            <li><strong>Autoconnect Return Sync on Webhook:</strong> <code>Off</code> — luego agregamos los bloques de Return explícitamente en cada rama.</li>
+          </ul>
+          <p>Hacé clic en <strong>Next</strong>.</p>
+          <img src="img/lab2/lab2-08.png" alt="Opciones del Webhook — Autoconnect Off y Auth None" class="lab-img">
+
+          <p>Aparecerá el mensaje <strong>"Webhook configured successfully!"</strong>. Hacé clic en <strong>Done</strong>.</p>
+          <img src="img/lab2/lab2-09.png" alt="Webhook configurado exitosamente" class="lab-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 2 -->
+    <section class="step" id="paso2">
+      <div class="step__header">
+        <span class="step__number">2</span>
+        <h2 class="step__title">Agregar y Configurar el FlowService <code>getClientInfo</code></h2>
+      </div>
+      <div class="step__body">
+        <div class="substep" id="paso2-1">
+          <p class="substep__title">2.1 — Buscar el conector FlowService</p>
+          <p>En el panel lateral de conectores, escribí <code>getClientInfo</code> en la barra de búsqueda.</p>
+          <img src="img/lab2/lab2-10.png" alt="Búsqueda del FlowService getClientInfo" class="lab-img">
+          <p>Arrastrá el conector <strong>getClientInfo</strong> hacia el canvas justo después del bloque Webhook.</p>
+          <img src="img/lab2/lab2-11.png" alt="FlowService getClientInfo agregado al canvas" class="lab-img">
+        </div>
+
+        <div class="substep" id="paso2-2">
+          <p class="substep__title">2.2 — Configurar el Runtime on-premise</p>
+          <p>En la ventana de configuración del bloque <code>getClientInfo</code>:</p>
+          <ol style="padding-left:20px; color: var(--cds-text-secondary); line-height:2;">
+            <li>Desplegá el selector <strong>Runtime</strong>.</li>
+            <li>Seleccioná tu runtime (ej: <strong><code>beetech_runtime</code></strong>).</li>
+            <li>Hacé clic en <strong>Next</strong>.</li>
+          </ol>
+          <img src="img/lab2/lab2-12.png" alt="Selección de beetech_runtime" class="lab-img">
+        </div>
+
+        <div class="substep" id="paso2-3">
+          <p class="substep__title">2.3 — Mapeo de parámetros de entrada</p>
+          <p>En <strong>Action configure</strong>, mapeá <code>numero_cuenta</code> proveniente de <code>$request.body</code> hacia el parámetro <code>numero_de_cuenta</code> del getClientInfo.</p>
+          <div class="callout callout--info">
+            <strong>💡 Tip:</strong> Para seleccionar un <em>Incoming Data</em>, hacé click primero en la casilla que querés completar en <em>Active Configure</em> y luego seleccioná el dato (<code>numero_cuenta</code> de <code>$request.body</code>). Se asignará automáticamente.
+          </div>
+          <p>Hacé clic en <strong>Next</strong>.</p>
+          <img src="img/lab2/lab2-13.png" alt="Mapeo de numero_cuenta a numero_de_cuenta" class="lab-img">
+        </div>
+
+        <div class="substep" id="paso2-4">
+          <p class="substep__title">2.4 — Probar la ejecución de la acción</p>
+          <p>webMethods Integration ejecutará una prueba unitaria usando el payload de muestra para validar la conectividad. Hacé clic en <strong>Test</strong>.</p>
+          <img src="img/lab2/lab2-14.png" alt="Prueba de ejecución del FlowService" class="lab-img">
+          <p>Verificá que la prueba retorne <strong>"Message posted successfully"</strong> y que los campos del cliente se reciban correctamente. Hacé clic en <strong>Done</strong>.</p>
+          <img src="img/lab2/lab2-15.png" alt="Resultado exitoso de la prueba de getClientInfo" class="lab-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 3 -->
+    <section class="step" id="paso3">
+      <div class="step__header">
+        <span class="step__number">3</span>
+        <h2 class="step__title">Agregar el Bloque de Decisión (Switch)</h2>
+      </div>
+      <div class="step__body">
+        <p>En el panel lateral, buscá <code>switch</code>. En la sección <strong>Developer Tools</strong>, seleccioná el conector <strong>Switch</strong>.</p>
+        <img src="img/lab2/lab2-16.png" alt="Búsqueda del bloque Switch" class="lab-img">
+        <p>Arrastrá el bloque <strong>Switch</strong> al canvas y conectalo a la salida de <code>getClientInfo</code>.</p>
+        <img src="img/lab2/lab2-17.png" alt="Bloque Switch añadido al canvas" class="lab-img">
+      </div>
+    </section>
+
+    <!-- PASO 4 -->
+    <section class="step" id="paso4">
+      <div class="step__header">
+        <span class="step__number">4</span>
+        <h2 class="step__title">Agregar los Bloques de Respuesta (<code>Return Data on Sync Webhook</code>)</h2>
+      </div>
+      <div class="step__body">
+        <p>Para devolver una respuesta HTTP al cliente según el resultado de la evaluación, usaremos el bloque <strong>Return Data on Sync Webhook</strong>.</p>
+
+        <div class="substep" id="paso4-1">
+          <p class="substep__title">4.1 — Buscar el bloque</p>
+          <p>En el panel lateral, buscá el bloque por su nombre. Seleccioná <strong>Return Data on Sync Webhook</strong> bajo <strong>Developer Tools</strong>.</p>
+          <img src="img/lab2/lab2-18.png" alt="Búsqueda de Return Data on Sync Webhook" class="lab-img">
+        </div>
+
+        <div class="substep">
+          <p class="substep__title">4.2 — Conectar el primer bloque de retorno (Rama 1)</p>
+          <p>Arrastrá el primer bloque <strong>Return Data on Sync Webhook</strong> conectándolo a la primera rama del Switch.</p>
+          <img src="img/lab2/lab2-19.png" alt="Primer Return Data on Sync Webhook conectado al Switch" class="lab-img">
+        </div>
+
+        <div class="substep">
+          <p class="substep__title">4.3 — Conectar el segundo bloque de retorno (Rama 2)</p>
+          <p>Arrastrá un segundo bloque <strong>Return Data on Sync Webhook</strong> conectándolo a la segunda rama del Switch. Esta comenzará llamándose <em>Case 2</em>; en el Paso 5.2 se definirá como <em>Default</em>.</p>
+          <img src="img/lab2/lab2-20.png" alt="Segundo Return Data on Sync Webhook conectado al Switch" class="lab-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 5 -->
+    <section class="step" id="paso5">
+      <div class="step__header">
+        <span class="step__number">5</span>
+        <h2 class="step__title">Configurar las Condiciones del Switch</h2>
+      </div>
+      <div class="step__body">
+        <p>Configuraremos las reglas lógicas que determinarán qué rama toma el flujo:</p>
+        <ul style="padding-left:20px; color: var(--cds-text-secondary); line-height:2;">
+          <li><strong>Case 1 (Aprobado):</strong> el monto es menor o igual al saldo disponible (<code>monto ≤ saldo_1</code>).</li>
+          <li><strong>Default (Rechazado):</strong> el monto excede el saldo disponible.</li>
+        </ul>
+
+        <div class="substep" id="paso5-1">
+          <p class="substep__title">5.1 — Configurar Case 1 (Condición de Aprobación)</p>
+          <p>Hacé clic en la primera rama del Switch. Saldrán 4 íconos disponibles. Hacé clic sobre el <strong>engranaje de configuración</strong>.</p>
+          <img src="img/lab2/lab2-21.png" alt="Configuración de la condición en el Switch" class="lab-img">
+          <p>En el editor de condiciones:</p>
+          <ol style="padding-left:20px; color: var(--cds-text-secondary); line-height:2.2;">
+            <li>En <strong>Select Case</strong>, asegurate de estar en <strong>Case 1</strong>.</li>
+            <li>En <strong>Condition Activity</strong>, seleccioná <strong>Add Condition → Add Filter</strong>.</li>
+            <li>En <strong>Filter 1</strong>, en <strong>Input</strong> seleccioná <code>$request → body → monto</code>.</li>
+            <li>En <strong>Condition</strong> seleccioná <strong>(Number) Less Than Equals</strong>.</li>
+          </ol>
+          <img src="img/lab2/lab2-22.png" alt="Selección de campo monto y operador Less Than Equals" class="lab-img">
+          <img src="img/lab2/lab2-23.png" alt="Configuración del campo monto en Input" class="lab-img">
+          <p>En <strong>Expected</strong>, seleccioná el campo de saldo del FlowService: <code>$a0 - getClientInfo → results → saldo_1</code>. Hacé clic en <strong>Done</strong>.</p>
+          <img src="img/lab2/lab2-24.png" alt="Mapeo de saldo_1 como valor esperado para la condición" class="lab-img">
+        </div>
+
+        <div class="substep" id="paso5-2">
+          <p class="substep__title">5.2 — Configurar Caso Default (Condición de Rechazo)</p>
+          <p>Hacé clic en la configuración de la segunda rama del Switch.</p>
+          <img src="img/lab2/lab2-25.png" alt="Selección de la configuración de la segunda rama" class="lab-img">
+          <p>Seleccioná <strong>Case 2</strong> y elegí la opción <strong>Default</strong>. Al ser la condición complementaria, no requiere filtros adicionales. Hacé clic en <strong>Done</strong>.</p>
+          <img src="img/lab2/lab2-26.png" alt="Configuración de Case 2 / Default" class="lab-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 6 -->
+    <section class="step" id="paso6">
+      <div class="step__header">
+        <span class="step__number">6</span>
+        <h2 class="step__title">Configurar los Bloques de Respuesta</h2>
+      </div>
+      <div class="step__body">
+        <div class="substep" id="paso6-1">
+          <p class="substep__title">6.1 — Configurar "Caso Aprobación"</p>
+          <p>Abrí el bloque de respuesta de la primera rama y renombralo a <strong>Caso Aprobación</strong>.</p>
+          <ul style="padding-left:20px; color: var(--cds-text-secondary); line-height:2;">
+            <li><strong>Status Code:</strong> <code>200</code></li>
+            <li><strong>Content Type:</strong> <code>application/json</code></li>
+          </ul>
+          <p><strong>Response Data:</strong></p>
+          <pre><code>{"resultado": "aprobado", "trx_id": {{$request.body.trx_id}}, "numero_cuenta": "{{$request.body.numero_cuenta}}", "monto": {{$request.body.monto}}, "nombre": "{{$a0.results[0].nombre_1}}", "apellido": "{{$a0.results[0].apellido_1}}", "saldo": {{$a0.results[0].saldo_1}}}</code></pre>
+          <p>Hacé clic en <strong>Next</strong>.</p>
+          <img src="img/lab2/lab2-27.png" alt="Mapeo de Response Data para Caso Aprobación" class="lab-img">
+          <p>Ejecutá el test con <strong>Test</strong>:</p>
+          <img src="img/lab2/lab2-28.png" alt="Test de acción Caso Aprobación" class="lab-img">
+          <p>Verificá la respuesta exitosa y hacé clic en <strong>Done</strong>:</p>
+          <img src="img/lab2/lab2-29.png" alt="Respuesta exitosa de Caso Aprobación" class="lab-img">
+        </div>
+
+        <div class="substep" id="paso6-2">
+          <p class="substep__title">6.2 — Configurar "Caso Rechazado"</p>
+          <p>Abrí el bloque de respuesta de la segunda rama y renombralo a <strong>Caso Rechazado</strong>.</p>
+          <ul style="padding-left:20px; color: var(--cds-text-secondary); line-height:2;">
+            <li><strong>Status Code:</strong> <code>200</code></li>
+            <li><strong>Content Type:</strong> <code>application/json</code></li>
+          </ul>
+          <p><strong>Response Data</strong> (incluye el campo <code>motivo</code>):</p>
+          <pre><code>{"resultado": "rechazado", "trx_id": {{$request.body.trx_id}}, "numero_cuenta": "{{$request.body.numero_cuenta}}", "monto": {{$request.body.monto}}, "nombre": "{{$a0.results[0].nombre_1}}", "apellido": "{{$a0.results[0].apellido_1}}", "saldo": {{$a0.results[0].saldo_1}}, "motivo": "Saldo insuficiente"}</code></pre>
+          <p>Hacé clic en <strong>Next</strong>.</p>
+          <img src="img/lab2/lab2-30.png" alt="Mapeo de Response Data para Caso Rechazado" class="lab-img">
+          <p>Ejecutá el test con <strong>Test</strong>:</p>
+          <img src="img/lab2/lab2-31.png" alt="Test de acción Caso Rechazado" class="lab-img">
+          <p>Verificá el payload de rechazo y hacé clic en <strong>Done</strong>:</p>
+          <img src="img/lab2/lab2-32.png" alt="Respuesta exitosa de Caso Rechazado" class="lab-img">
+          <p>El canvas reflejará la configuración completa de ambos casos:</p>
+          <img src="img/lab2/lab2-33.png" alt="Canvas con Caso Aprobación y Caso Rechazado configurados" class="lab-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 7 -->
+    <section class="step" id="paso7">
+      <div class="step__header">
+        <span class="step__number">7</span>
+        <h2 class="step__title">Renombrar, Guardar y Activar el Workflow</h2>
+      </div>
+      <div class="step__body">
+        <ol style="padding-left:20px; color: var(--cds-text-secondary); line-height:2.4;">
+          <li>Cambiá el nombre del Workflow a <strong><code>Transacción Hibrida</code></strong> haciendo clic en el título superior.</li>
+          <li>Hacé clic en <strong>Save</strong> para guardar los cambios.</li>
+        </ol>
+        <img src="img/lab2/lab2-34.png" alt="Workflow renombrado a Transacción Hibrida y guardado" class="lab-img">
+        <p>Testeá el flujo completo con el botón <strong>Run workflow</strong>:</p>
+        <img src="img/lab2/lab2-35.png" alt="Activación del Workflow a Run" class="lab-img">
+      </div>
+    </section>
+
+    <!-- PASO 8 -->
+    <section class="step" id="paso8">
+      <div class="step__header">
+        <span class="step__number">8</span>
+        <h2 class="step__title">Pruebas End-to-End del Workflow en IWHI</h2>
+      </div>
+      <div class="step__body">
+        <div class="substep">
+          <p class="substep__title">8.1 — Probar Caso Aprobado (Monto ≤ Saldo)</p>
+          <p>Con el payload de prueba inicial (<code>monto: 1000</code> ≤ <code>saldo: 12540.75</code>), ejecutá la prueba del workflow. El flujo tomará la rama superior ejecutando <strong>Caso Aprobado</strong> satisfactoriamente:</p>
+          <img src="img/lab2/lab2-36.png" alt="Prueba exitosa del Workflow para caso aprobado" class="lab-img">
+          <div class="callout callout--success">
+            <strong>✅</strong> Verás la notificación verde <strong>"Workflow testing successfully completed"</strong>.
+          </div>
+        </div>
+
+        <div class="substep">
+          <p class="substep__title">8.2 — Obtener la URL pública del Webhook</p>
+          <p>Abrí la configuración del trigger Webhook y copiá la URL pública:</p>
+          <img src="img/lab2/lab2-37.png" alt="Copia de la URL pública del Webhook" class="lab-img">
+        </div>
+
+        <div class="substep">
+          <p class="substep__title">8.3 — Probar Caso Rechazado (Monto &gt; Saldo)</p>
+          <p>En la configuración del Webhook, cambiá el valor de prueba del campo <code>monto</code> a un valor superior al saldo (ej: <code>15000</code>):</p>
+          <img src="img/lab2/lab2-38.png" alt="Modificación del monto a 15000 en el payload de prueba" class="lab-img">
+          <p>Hacé clic en <strong>Run workflow</strong>:</p>
+          <img src="img/lab2/lab2-39.png" alt="Ejecución de Run workflow" class="lab-img">
+          <p>El flujo tomará la rama inferior ejecutando <strong>Caso Rechazado</strong> satisfactoriamente:</p>
+          <img src="img/lab2/lab2-40.png" alt="Ejecución exitosa de la rama de rechazo" class="lab-img">
+          <div class="callout callout--success">
+            <strong>✅</strong> Verás la notificación verde <strong>"Workflow testing successfully completed"</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 9 -->
+    <section class="step" id="paso9">
+      <div class="step__header">
+        <span class="step__number">9</span>
+        <h2 class="step__title">Probar con el Transaction Tester</h2>
+      </div>
+      <div class="step__body">
+        <div class="substep">
+          <p class="substep__title">9.1 — Levantar el contenedor</p>
+          <p>Asegurate de tener corriendo la base de datos (iniciada en el <a href="lab1.html" style="color:var(--cds-link-primary);">Lab 1</a>) y levantá el servicio desde la raíz del proyecto:</p>
+          <div class="code-group">
+            <p class="code-group__label">Docker</p>
+            <pre><code>docker compose up -d transaction-tester</code></pre>
+          </div>
+          <div class="code-group">
+            <p class="code-group__label">Podman</p>
+            <pre><code>podman compose up -d transaction-tester</code></pre>
+          </div>
+          <p>Abrí <strong><a href="http://localhost:8080" style="color:var(--cds-link-primary);">http://localhost:8080</a></strong> en el navegador.</p>
+        </div>
+
+        <div class="substep">
+          <p class="substep__title">9.2 — Configurar la URL del webhook</p>
+          <ol style="padding-left:20px; color: var(--cds-text-secondary); line-height:2.2;">
+            <li>Pegá la URL del webhook copiada en el campo <strong>URL del workflow (IWHI)</strong>.</li>
+            <li>Hacé clic en <strong>Cargar cuentas</strong> para recuperar la lista de clientes desde la base de datos.</li>
+          </ol>
+        </div>
+
+        <div class="substep">
+          <p class="substep__title">9.3 — Ejecutar transacciones y validar resultados</p>
+          <ol style="padding-left:20px; color: var(--cds-text-secondary); line-height:2.2;">
+            <li>Seleccioná un cliente (ej: <em>Carlos Ramírez Vega</em>, saldo $3,200).</li>
+            <li><strong>Prueba de Aprobación:</strong> ingresá un monto inferior al saldo → HTTP 200 con <code>"resultado": "aprobado"</code>.</li>
+            <li><strong>Prueba de Rechazo:</strong> ingresá un monto mayor al saldo → HTTP 200 con <code>"resultado": "rechazado"</code> y <code>"motivo": "Saldo insuficiente"</code>.</li>
+          </ol>
+          <img src="img/lab2/lab2-41.png" alt="Resultados de transacciones aprobadas y rechazadas en Transaction Tester" class="lab-img">
+
+          <div class="callout callout--success">
+            <strong>🎉 ¡Completaste el bootcamp!</strong> Realizaste un flujo end-to-end de integración de aplicaciones en arquitectura híbrida utilizando IBM webMethods Hybrid Integration.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Nav actions -->
+    <div class="nav-actions">
+      <a class="btn btn--ghost" href="lab1.html">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Volver a Lab 1
+      </a>
+      <a class="btn btn--ghost" href="index.html">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+
+    <!-- Link a encuesta -->
+    <div style="background:var(--ibm-gray-10); border:1px solid var(--cds-border-subtle); border-top:4px solid var(--ibm-blue-60); padding:40px; margin-top:64px; text-align:center;">
+      <p style="font-size:20px; font-weight:400; margin-bottom:8px; color:var(--cds-text-primary);">🎉 ¡Completaste el bootcamp!</p>
+      <p style="font-size:14px; color:var(--cds-text-secondary); margin-bottom:24px;">Antes de irte, completá la encuesta de feedback.</p>
+      <a href="encuesta.html" style="display:inline-flex; align-items:center; gap:8px; padding:13px 28px; background:var(--ibm-blue-60); color:#fff; font-size:14px; font-weight:600; text-decoration:none;">
+        Ir a la encuesta
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<footer>
+  <div class="page-content">
+    <span>© IBM Corporation 2025 — IBM webMethods Hybrid Integration Bootcamp</span>
+    <a href="index.html">← Volver al inicio</a>
+  </div>
+</footer>
+
+</body>
+</html>
