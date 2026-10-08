@@ -4,212 +4,696 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction Tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f4f5f7;
-    color: #1a1a1a;
-    font-size: 13px;
-  }
-  .wrap { max-width: 480px; margin: 0 auto; padding: 12px; }
-  h1 { font-size: 16px; margin: 0 0 12px; }
-  .card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-  }
-  .card h2 { font-size: 12px; margin: 0 0 8px; color: #555; text-transform: uppercase; letter-spacing: .03em; }
-  input[type=text], input[type=number] {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 13px;
-    font-family: monospace;
-  }
-  .row { display: flex; gap: 6px; align-items: center; }
-  .row input { flex: 1; }
-  button {
-    padding: 6px 10px;
-    border: none;
-    border-radius: 5px;
-    background: #2563eb;
-    color: #fff;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  button:hover { background: #1d4ed8; }
-  button.secondary { background: #6b7280; }
-  button.secondary:hover { background: #4b5563; }
-  button:disabled { background: #b7c3e0; cursor: not-allowed; }
-  #cuentasBox { max-height: 160px; overflow-y: auto; margin-top: 8px; border: 1px solid #eee; border-radius: 5px; display: none; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  td, th { padding: 4px 6px; text-align: left; border-bottom: 1px solid #eee; white-space: nowrap; }
-  tr.acc-row { cursor: pointer; }
-  tr.acc-row:hover { background: #eef2ff; }
-  tr.selected { background: #dbeafe; }
-  #selCuenta { font-family: monospace; font-size: 12px; margin-top: 6px; color: #333; min-height: 14px; }
-  #enviarBtn { width: 100%; margin-top: 4px; padding: 9px; font-size: 13px; }
-  #log { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column-reverse; }
-  .entry { border-bottom: 1px dashed #e5e5e5; padding: 6px 0; font-family: monospace; font-size: 11.5px; line-height: 1.5; }
-  .entry:last-child { border-bottom: none; }
-  .req { color: #2563eb; }
-  .ok { color: #16a34a; font-weight: bold; }
-  .err { color: #dc2626; font-weight: bold; }
-  .dim { color: #888; }
-  small.hint { color: #888; display: block; margin-top: 4px; }
+/* ── Carbon tokens ── */
+:root {
+  /* Light (right panel) */
+  --bg:            #f4f4f4;
+  --surface:       #ffffff;
+  --border:        #e0e0e0;
+  --border-mid:    #c6c6c6;
+  --text:          #161616;
+  --text-2:        #525252;
+  --text-ph:       #a8a8a8;
+  --interactive:   #0f62fe;
+  --focus:         #0f62fe;
+  /* Dark sidebar (Carbon g90 palette) */
+  --sb-bg:         #262626;
+  --sb-layer:      #393939;
+  --sb-border:     #525252;
+  --sb-text:       #f4f4f4;
+  --sb-text-2:     #c6c6c6;
+  --sb-text-ph:    #6f6f6f;
+  --sb-input-bg:   #393939;
+  /* Accent */
+  --brand:         #0f62fe;
+  --brand-hover:   #0353e9;
+  --btn-disabled:  #525252;
+  /* Status pastels */
+  --ok-border:     #42be65;
+  --ok-bg:         #defbe6;
+  --ok-text:       #044317;
+  --err-border:    #ff8389;
+  --err-bg:        #fff1f1;
+  --err-text:      #750e13;
+  /* JSON colours */
+  --jk: #be95ff;
+  --js: #6fdc8c;
+  --jn: #78a9ff;
+  --jb: #ffb784;
+  --jx: #8d8d8d;
+  /* Spacing */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ════════════════════════════════
+   TOP BAR
+════════════════════════════════ */
+.topbar {
+  flex-shrink: 0;
+  height: 3px;
+  background: var(--brand);
+}
+
+.header {
+  flex-shrink: 0;
+  background: var(--sb-bg);
+  color: var(--sb-text);
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: 0 var(--s5);
+  height: 3rem;
+  border-bottom: 1px solid var(--sb-border);
+}
+.header-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+.header-sub {
+  font-size: 0.75rem;
+  color: var(--sb-text-2);
+  flex-shrink: 0;
+}
+.header-spacer { flex: 1; }
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.2rem var(--s3);
+  border-left: 1px solid var(--sb-border);
+  min-width: 3.5rem;
+}
+.stat-chip .val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.stat-chip .lbl {
+  font-size: 0.5625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sb-text-2);
+}
+.stat-chip.ok  .val { color: #42be65; }
+.stat-chip.err .val { color: #ff8389; }
+.stat-chip.all .val { color: var(--sb-text); }
+
+/* ════════════════════════════════
+   MAIN LAYOUT
+════════════════════════════════ */
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--sb-bg);
+  color: var(--sb-text);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--sb-border);
+  overflow-y: auto;
+}
+
+.sb-section {
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid var(--sb-border);
+}
+.sb-section:last-child { border-bottom: none; }
+
+.sb-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--sb-text-2);
+  margin-bottom: var(--s2);
+}
+
+/* Sidebar inputs */
+.sb-field { margin-bottom: var(--s3); }
+.sb-field:last-child { margin-bottom: 0; }
+
+.sb-field label {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--sb-text-2);
+  margin-bottom: var(--s1);
+}
+
+.sb-field input[type="text"],
+.sb-field input[type="number"] {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 var(--s2);
+  background: var(--sb-input-bg);
+  border: 0;
+  border-bottom: 1px solid var(--sb-border);
+  color: var(--sb-text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.8125rem;
+  outline: none;
+}
+.sb-field input::placeholder { color: var(--sb-text-ph); }
+.sb-field input:focus {
+  border-bottom: 2px solid var(--brand);
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+.sb-helper {
+  font-size: 0.625rem;
+  color: var(--sb-text-2);
+  margin-top: 0.2rem;
+}
+
+/* Accounts table inside sidebar */
+.sb-table-wrap {
+  display: none;
+  border: 1px solid var(--sb-border);
+  max-height: 140px;
+  overflow-y: auto;
+  margin-top: var(--s2);
+}
+.sb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.6875rem;
+}
+.sb-table thead tr {
+  background: #333333;
+  border-bottom: 1px solid var(--sb-border);
+}
+.sb-table th {
+  padding: 0.25rem var(--s2);
+  text-align: left;
+  font-weight: 600;
+  color: var(--sb-text-2);
+  white-space: nowrap;
+}
+.sb-table td {
+  padding: 0.25rem var(--s2);
+  border-bottom: 1px solid #333333;
+  white-space: nowrap;
+  color: var(--sb-text);
+}
+.sb-table tr:last-child td { border-bottom: 0; }
+.sb-table tr.acc-row { cursor: pointer; }
+.sb-table tr.acc-row:hover td { background: #4d4d4d; }
+.sb-table tr.selected td { background: #003a8c; color: #d0e2ff; }
+
+.sb-selected {
+  margin-top: var(--s2);
+  font-size: 0.6875rem;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--sb-text-2);
+  padding: var(--s1) var(--s2);
+  background: var(--sb-layer);
+  border-left: 2px solid var(--brand);
+  min-height: 1.5rem;
+}
+
+.sb-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+#cuentasStatus {
+  font-size: 0.6875rem;
+  color: var(--sb-text-2);
+}
+
+/* Sidebar buttons */
+.sb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 var(--s3);
+  border: 1px solid var(--sb-border);
+  background: var(--sb-layer);
+  color: var(--sb-text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s;
+  white-space: nowrap;
+}
+.sb-btn:hover { background: #4d4d4d; }
+
+.sb-spacer { flex: 1; }
+
+/* Send button — full-width at bottom of sidebar */
+.sb-send-wrap {
+  padding: var(--s3) var(--s4);
+  margin-top: auto;
+  border-top: 1px solid var(--sb-border);
+}
+#enviarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 2.75rem;
+  border: none;
+  background: var(--brand);
+  color: #ffffff;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+  letter-spacing: 0.01em;
+}
+#enviarBtn:hover:not(:disabled) { background: var(--brand-hover); }
+#enviarBtn:disabled {
+  background: var(--btn-disabled);
+  color: #8d8d8d;
+  cursor: not-allowed;
+}
+
+/* ── RIGHT PANEL ── */
+.panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--s4);
+  height: 2.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: var(--s3);
+}
+.panel-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-2);
+}
+#clearBtn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  padding: 0 var(--s2);
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-2);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+#clearBtn:hover { background: var(--border); }
+
+#log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  padding: 0;
+}
+
+/* Entry */
+.entry {
+  background: var(--surface);
+  border-left: 3px solid transparent;
+  flex-shrink: 0;
+}
+.entry.ok  { border-left-color: var(--ok-border); }
+.entry.err { border-left-color: var(--err-border); }
+
+.entry-header {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 0.3rem var(--s3);
+  background: var(--bg);
+}
+.entry-status {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.1rem 0.35rem;
+}
+.entry.ok  .entry-status {
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+.entry.err .entry-status {
+  background: var(--err-bg);
+  color: var(--err-text);
+}
+.entry-meta-chips {
+  display: flex;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+.chip {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.625rem;
+  color: var(--text-2);
+  background: var(--border);
+  padding: 0.1rem 0.3rem;
+}
+.chip strong {
+  font-weight: 500;
+  color: var(--text);
+}
+.entry-ts {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.625rem;
+  color: var(--text-ph);
+  margin-left: auto;
+}
+
+.entry-body {
+  padding: var(--s2) var(--s3);
+}
+.entry-body pre {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text);
+  margin: 0;
+  background: #f9f9fb;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--border);
+}
+
+/* JSON highlighting (light panel) */
+.json-key  { color: #6929c4; }
+.json-str  { color: #198038; }
+.json-num  { color: #0043ce; }
+.json-bool { color: #8a3800; }
+.json-null { color: #8d8d8d; }
+
+.log-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  color: var(--text-ph);
+  background: var(--bg);
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>🔧 Transaction Tester</h1>
 
-  <div class="card">
-    <h2>1. URL del webhook</h2>
-    <input type="text" id="url" placeholder="https://.../runflow/run/sync/v2/...">
-    <small class="hint">Se guarda en este navegador.</small>
+<div class="topbar"></div>
+
+<header class="header">
+  <span class="header-title">Transaction Tester</span>
+  <span class="header-sub">Webhook integration tool</span>
+  <div class="header-spacer"></div>
+  <div class="stat-chip all">
+    <span class="val" id="statTotal">0</span>
+    <span class="lbl">Total</span>
   </div>
-
-  <div class="card">
-    <h2>2. Cuenta</h2>
-    <div class="row">
-      <button id="cargarBtn">Cargar cuentas</button>
-      <span id="cuentasStatus" class="dim"></span>
-    </div>
-    <div id="cuentasBox">
-      <table>
-        <thead><tr><th>Nº Cuenta</th><th>Titular</th><th>Tipo</th><th>Saldo</th></tr></thead>
-        <tbody id="cuentasBody"></tbody>
-      </table>
-    </div>
-    <div id="selCuenta">Sin cuenta seleccionada</div>
+  <div class="stat-chip ok">
+    <span class="val" id="statOk">0</span>
+    <span class="lbl">OK</span>
   </div>
+  <div class="stat-chip err">
+    <span class="val" id="statErr">0</span>
+    <span class="lbl">Error</span>
+  </div>
+</header>
 
-  <div class="card">
-    <h2>3. Datos de la transacción</h2>
-    <div style="display: flex; gap: 10px;">
-      <div style="flex: 1;">
-        <label style="display: block; margin-bottom: 4px; color: #555; font-weight: bold; font-size: 11px;">Monto</label>
-        <input type="number" id="monto" min="1" step="any" placeholder="Monto (ej: 1000)">
-      </div>
-      <div style="flex: 1;">
-        <label style="display: block; margin-bottom: 4px; color: #555; font-weight: bold; font-size: 11px;">ID de Transacción (trx_id)</label>
-        <input type="number" id="trxId" min="1" step="1" value="1234" placeholder="trx_id (ej: 1234)">
+<div class="layout">
+
+  <!-- ── LEFT SIDEBAR ── -->
+  <aside class="sidebar">
+
+    <div class="sb-section">
+      <div class="sb-label">Webhook</div>
+      <div class="sb-field">
+        <label for="url">URL</label>
+        <input type="text" id="url" placeholder="https://.../runflow/run/sync/v2/..." autocomplete="off">
+        <p class="sb-helper">Persiste en este navegador.</p>
       </div>
     </div>
-  </div>
 
-  <button id="enviarBtn" disabled>Enviar transacción</button>
+    <div class="sb-section">
+      <div class="sb-label">Cuenta</div>
+      <div class="sb-row">
+        <button class="sb-btn" id="cargarBtn">Cargar cuentas</button>
+        <span id="cuentasStatus"></span>
+      </div>
+      <div class="sb-table-wrap" id="cuentasBox">
+        <table class="sb-table">
+          <thead>
+            <tr><th>N.º Cuenta</th><th>Titular</th><th>Tipo</th><th>Saldo</th></tr>
+          </thead>
+          <tbody id="cuentasBody"></tbody>
+        </table>
+      </div>
+      <div class="sb-selected" id="selCuenta">Sin cuenta seleccionada</div>
+    </div>
 
-  <div class="card" style="margin-top:10px;">
-    <h2>Registro</h2>
-    <div id="log"></div>
-  </div>
+    <div class="sb-section">
+      <div class="sb-label">Transacción</div>
+      <div class="sb-field">
+        <label for="monto">Monto</label>
+        <input type="number" id="monto" min="1" step="any" placeholder="Ej: 1000">
+      </div>
+    </div>
+
+    <div class="sb-spacer"></div>
+
+    <div class="sb-send-wrap">
+      <button id="enviarBtn" disabled>Enviar transacción</button>
+    </div>
+
+  </aside>
+
+  <!-- ── RIGHT PANEL ── -->
+  <main class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Registro de respuestas</span>
+      <button id="clearBtn">Limpiar</button>
+    </div>
+    <div id="log">
+      <div class="log-empty" id="logEmpty">Aún no hay transacciones enviadas.</div>
+    </div>
+  </main>
+
 </div>
 
 <script>
-const urlInput = document.getElementById('url');
-const montoInput = document.getElementById('monto');
-const trxIdInput = document.getElementById('trxId');
-const selCuenta = document.getElementById('selCuenta');
-const enviarBtn = document.getElementById('enviarBtn');
-const log = document.getElementById('log');
-let cuentaSeleccionada = null;
+(function () {
+  const urlInput   = document.getElementById('url');
+  const montoInput = document.getElementById('monto');
+  const selCuenta  = document.getElementById('selCuenta');
+  const enviarBtn  = document.getElementById('enviarBtn');
+  const log        = document.getElementById('log');
 
-urlInput.value = localStorage.getItem('tt_url') || '';
-urlInput.addEventListener('input', () => {
-  localStorage.setItem('tt_url', urlInput.value);
-  actualizarBoton();
-});
-montoInput.addEventListener('input', actualizarBoton);
-trxIdInput.addEventListener('input', actualizarBoton);
+  let cuentaSeleccionada = null;
+  let trxId  = parseInt(localStorage.getItem('tt_trx_id')  || '1', 10);
+  let sTotal = 0, sOk = 0, sErr = 0;
+  let logEmptyEl = document.getElementById('logEmpty');
 
-function actualizarBoton() {
-  enviarBtn.disabled = !(urlInput.value.trim() && cuentaSeleccionada && montoInput.value.trim() && trxIdInput.value.trim());
-}
+  urlInput.value = localStorage.getItem('tt_url') || '';
 
-document.getElementById('cargarBtn').onclick = async () => {
-  const status = document.getElementById('cuentasStatus');
-  status.textContent = 'Cargando...';
-  try {
-    const res = await fetch('/api/cuentas');
-    const data = await res.json();
-    if (!res.ok) { status.textContent = 'Error: ' + (data.error || res.status); return; }
-    const body = document.getElementById('cuentasBody');
-    body.innerHTML = '';
-    data.forEach(c => {
-      const tr = document.createElement('tr');
-      tr.className = 'acc-row';
-      tr.innerHTML = `<td>${c.numero_cuenta}</td><td>${c.nombre} ${c.apellido}</td><td>${c.tipo_cuenta}</td><td>${c.saldo}</td>`;
-      tr.onclick = () => {
-        document.querySelectorAll('tr.acc-row').forEach(r => r.classList.remove('selected'));
-        tr.classList.add('selected');
-        cuentaSeleccionada = c.numero_cuenta;
-        selCuenta.textContent = `${c.numero_cuenta} — ${c.nombre} ${c.apellido}`;
-        actualizarBoton();
-      };
-      body.appendChild(tr);
-    });
-    document.getElementById('cuentasBox').style.display = 'block';
-    status.textContent = `${data.length} cuentas`;
-  } catch (e) {
-    status.textContent = 'Error: ' + e;
-  }
-};
-
-enviarBtn.onclick = async () => {
-  const url = urlInput.value.trim();
-  const monto = parseFloat(montoInput.value);
-  const trx_id = parseInt(trxIdInput.value, 10);
-  enviarBtn.disabled = true;
-  const ts = new Date().toLocaleTimeString();
-
-  try {
-    const res = await fetch('/api/enviar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, numero_cuenta: cuentaSeleccionada, monto, trx_id }),
-    });
-    const data = await res.json();
-    
-    // Auto-increment transaction ID with each send
-    trxIdInput.value = trx_id + 1;
-
-    const entry = document.createElement('div');
-    entry.className = 'entry';
-    if (data.ok) {
-      entry.innerHTML = `
-        <div class="dim">[${ts}]</div>
-        <div class="req">→ REQUEST  ${data.sent.numero_cuenta}  $${data.sent.monto}  trx_id=${data.sent.trx_id}</div>
-        <div class="${data.status_code < 400 ? 'ok' : 'err'}">← RESPONSE  ${data.status_code}</div>
-        <div class="dim">${escapeHtml(data.response_body)}</div>`;
-    } else {
-      entry.innerHTML = `
-        <div class="dim">[${ts}]</div>
-        <div class="req">→ REQUEST  ${data.sent.numero_cuenta}  $${data.sent.monto}  trx_id=${data.sent.trx_id}</div>
-        <div class="err">← ERROR</div>
-        <div class="dim">${escapeHtml(data.error)}</div>`;
-    }
-    log.prepend(entry);
-  } catch (e) {
-    const entry = document.createElement('div');
-    entry.className = 'entry';
-    entry.innerHTML = `<div class="dim">[${ts}]</div><div class="err">← ERROR</div><div class="dim">${escapeHtml(String(e))}</div>`;
-    log.prepend(entry);
-  } finally {
+  urlInput.addEventListener('input', () => {
+    localStorage.setItem('tt_url', urlInput.value);
     actualizarBoton();
+  });
+  montoInput.addEventListener('input', actualizarBoton);
+
+  document.getElementById('clearBtn').onclick = () => {
+    log.innerHTML = '';
+    logEmptyEl = document.createElement('div');
+    logEmptyEl.className = 'log-empty';
+    logEmptyEl.id = 'logEmpty';
+    logEmptyEl.textContent = 'Aún no hay transacciones enviadas.';
+    log.appendChild(logEmptyEl);
+    sTotal = sOk = sErr = 0;
+    updateStats();
+  };
+
+  function actualizarBoton() {
+    enviarBtn.disabled = !(urlInput.value.trim() && cuentaSeleccionada && montoInput.value.trim());
   }
-};
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-}
+  function updateStats() {
+    document.getElementById('statTotal').textContent = sTotal;
+    document.getElementById('statOk').textContent    = sOk;
+    document.getElementById('statErr').textContent   = sErr;
+  }
 
-actualizarBoton();
+  /* ── Load accounts ── */
+  document.getElementById('cargarBtn').onclick = async () => {
+    const status = document.getElementById('cuentasStatus');
+    status.textContent = 'Cargando…';
+    try {
+      const res  = await fetch('/api/cuentas');
+      const data = await res.json();
+      if (!res.ok) { status.textContent = 'Error: ' + (data.error || res.status); return; }
+      const body = document.getElementById('cuentasBody');
+      body.innerHTML = '';
+      data.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.className = 'acc-row';
+        tr.innerHTML =
+          `<td>${esc(c.numero_cuenta)}</td>` +
+          `<td>${esc(c.nombre)} ${esc(c.apellido)}</td>` +
+          `<td>${esc(c.tipo_cuenta)}</td>` +
+          `<td>${esc(String(c.saldo))}</td>`;
+        tr.onclick = () => {
+          document.querySelectorAll('tr.acc-row').forEach(r => r.classList.remove('selected'));
+          tr.classList.add('selected');
+          cuentaSeleccionada = c.numero_cuenta;
+          selCuenta.textContent = c.numero_cuenta + ' — ' + c.nombre + ' ' + c.apellido;
+          actualizarBoton();
+        };
+        body.appendChild(tr);
+      });
+      document.getElementById('cuentasBox').style.display = 'block';
+      status.textContent = data.length + ' cuenta' + (data.length !== 1 ? 's' : '');
+    } catch (e) {
+      document.getElementById('cuentasStatus').textContent = 'Error: ' + e;
+    }
+  };
+
+  /* ── Send transaction ── */
+  enviarBtn.onclick = async () => {
+    const url          = urlInput.value.trim();
+    const monto        = parseFloat(montoInput.value);
+    const currentTrxId = trxId;
+
+    enviarBtn.disabled = true;
+    const ts = new Date().toLocaleTimeString('es', { hour12: false });
+
+    try {
+      const res  = await fetch('/api/enviar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, numero_cuenta: cuentaSeleccionada, monto, trx_id: currentTrxId }),
+      });
+      const data = await res.json();
+
+      trxId += 1;
+      localStorage.setItem('tt_trx_id', String(trxId));
+
+      addEntry({
+        ok:     data.ok,
+        ts,
+        cuenta: data.sent ? data.sent.numero_cuenta : cuentaSeleccionada,
+        monto:  data.sent ? data.sent.monto : monto,
+        status: data.status_code,
+        body:   data.ok ? data.response_body : data.error,
+      });
+    } catch (e) {
+      addEntry({ ok: false, ts, cuenta: cuentaSeleccionada, monto, status: null, body: String(e) });
+    } finally {
+      actualizarBoton();
+    }
+  };
+
+  /* ── Render a log entry ── */
+  function addEntry({ ok, ts, cuenta, monto, status, body }) {
+    if (logEmptyEl && logEmptyEl.parentNode) logEmptyEl.remove();
+
+    sTotal++;
+    ok ? sOk++ : sErr++;
+    updateStats();
+
+    let parsed = null;
+    if (body) { try { parsed = JSON.parse(body); } catch (_) {} }
+
+    const statusLabel = ok
+      ? 'OK' + (status ? ' ' + status : '')
+      : 'ERROR' + (status ? ' ' + status : '');
+
+    const bodyHtml = parsed !== null
+      ? '<pre>' + syntaxHighlight(parsed) + '</pre>'
+      : '<pre>' + esc(String(body || '')) + '</pre>';
+
+    const entry = document.createElement('div');
+    entry.className = 'entry ' + (ok ? 'ok' : 'err');
+    entry.innerHTML =
+      `<div class="entry-header">` +
+        `<span class="entry-status">${esc(statusLabel)}</span>` +
+        `<span class="entry-meta-chips">` +
+          `<span class="chip">Cuenta <strong>${esc(String(cuenta))}</strong></span>` +
+          `<span class="chip">Monto <strong>${esc(String(monto))}</strong></span>` +
+        `</span>` +
+        `<span class="entry-ts">${esc(ts)}</span>` +
+      `</div>` +
+      `<div class="entry-body">${bodyHtml}</div>`;
+
+    log.insertBefore(entry, log.firstChild);
+  }
+
+  /* ── JSON syntax highlighting ── */
+  function syntaxHighlight(json) {
+    const str = JSON.stringify(json, null, 2);
+    return str.replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      match => {
+        let cls = 'json-num';
+        if (/^"/.test(match))          cls = /:$/.test(match) ? 'json-key' : 'json-str';
+        else if (/true|false/.test(match)) cls = 'json-bool';
+        else if (/null/.test(match))   cls = 'json-null';
+        return `<span class="${cls}">${esc(match)}</span>`;
+      }
+    );
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
+    );
+  }
+
+  actualizarBoton();
+})();
 </script>
 </body>
 </html>

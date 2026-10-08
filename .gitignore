@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Bob AI assistant
+.bob/
+
+
+# Shell scripts used during construction
+images/bash/
+**/*.sh
+
+# VS Code workspace settings
+.vscode/

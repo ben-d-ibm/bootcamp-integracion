@@ -10,8 +10,8 @@ La conexión a la base de datos que no está expuesta la haremos mediante el des
 
 | Parte | Descripción |
 |---|---|
-| [📘 PT1 — Arquitectura y ambiente local](PT1.md) | Levantamiento del ambiente Docker/Podman con PostgreSQL e instalación del IWHI Edge Runtime en la misma red |
-| [⚙️ PT2 — Creación de Workflow en IWHI](PT2.md) | Construcción del workflow de transferencias: Webhook, FlowService, Switch y publicación en Confluent Cloud |
+| [📘 Lab 1 — Arquitectura y ambiente local](lab1.md) | Levantamiento del ambiente Docker/Podman con PostgreSQL e instalación del IWHI Edge Runtime en la misma red |
+| [⚙️ Lab 2 — Creación de Workflow en IWHI](lab2.md) | Construcción del workflow de transferencias: Webhook, FlowService, Switch y respuestas síncronas |
 
 ## 🗄️ Muestra de la base de datos
 
@@ -25,7 +25,7 @@ La conexión a la base de datos que no está expuesta la haremos mediante el des
 
 ## 🧪 Testing
 
-Luego de finalizar todos los pasos de la PT1 y PT2, el último paso es testear lo construído usando el [🔧 Transaction Tester](transaction-tester/README.md): una app web chica para mandar transacciones de prueba a mano, usando alguna de las cuentas de la tabla de arriba y montos mayores o menores al saldo correspondiente.
+Luego de finalizar todos los pasos del Lab 1 y Lab 2, el último paso es testear lo construído usando el [🔧 Transaction Tester](transaction-tester/README.md): una app web chica para mandar transacciones de prueba a mano, usando alguna de las cuentas de la tabla de arriba y montos mayores o menores al saldo correspondiente.
 
 ---
 
