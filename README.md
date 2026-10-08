@@ -11,7 +11,7 @@ La conexión a la base de datos que no está expuesta la haremos mediante el des
 | Parte | Descripción |
 |---|---|
 | [📘 Lab 1 — Arquitectura y ambiente local](lab1.md) | Levantamiento del ambiente Docker/Podman con PostgreSQL e instalación del IWHI Edge Runtime en la misma red |
-| [⚙️ Lab 2 — Creación de Workflow en IWHI](lab2.md) | Construcción del workflow de transferencias: Webhook, FlowService, Switch y respuestas síncronas |
+| [⚙️ Lab 2 — Creación de Workflow en IWHI](lab2.md) | Construcción del workflow de transferencias: Webhook, FlowService, Switch y Returns |
 
 ## 🗄️ Muestra de la base de datos
 

@@ -1,6 +1,6 @@
 # 🏗️ Lab 1 — Ambiente local y FlowService
 
-Este ambiente simula un escenario de **integración híbrida real**: la base de datos existe on-premise (en tu máquina, via Docker) y el Edge Runtime de IWHI se instala después para conectarla a la nube — exactamente como ocurre en una empresa que quiere exponer sus sistemas internos a plataformas SaaS sin abrir su firewall.
+En este laboratorio configuraremos un entorno de **integración híbrida real**. Desplegaremos una base de datos PostgreSQL on-premise mediante Docker e instalaremos un **Edge Runtime de IBM webMethods Integration (IWHI)** en la misma red local para conectarla de forma segura con la nube sin necesidad de abrir puertos en el firewall. Finalmente, crearemos un **FlowService** (`getClientInfo`) que consultará la información y el saldo de los clientes para que pueda ser consumido por flujos de orquestación en la nube.
 
 ![Arquitectura del ambiente](img/lab1/lab1-01.png)
 

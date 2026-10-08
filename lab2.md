@@ -1,6 +1,6 @@
 # ⚙️ Lab 2 — Creación de Workflow en IWHI
 
-
+En este laboratorio construiremos un **Workflow de orquestación en IBM webMethods Integration (IWHI)** para procesar solicitudes de transferencias bancarias. A través de un disparador HTTP (Webhook), el flujo recibirá las transacciones entrantes, consultará el saldo del cliente en la base de datos on-premise mediante el **FlowService** creado en el [Lab 1](lab1.md), evaluará las reglas de negocio con un bloque condicional (**Switch**) y devolverá una respuesta aprobando o rechazando la operación según los fondos disponibles.
 
 ![Workflow Transferencias](img/lab2/lab2-01.png)
 
