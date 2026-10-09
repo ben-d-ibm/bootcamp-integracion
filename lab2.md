@@ -228,7 +228,15 @@ En la pantalla de configuración:
 - **Response Data**: Construye el JSON mapeando los datos dinámicos de la transacción y del cliente:
 
 ```json
-{"resultado": "aprobado", "trx_id": {{$request.body.trx_id}}, "numero_cuenta": "{{$request.body.numero_cuenta}}", "monto": {{$request.body.monto}}, "nombre": "{{$a0.results[0].nombre_1}}", "apellido": "{{$a0.results[0].apellido_1}}", "saldo": {{$a0.results[0].saldo_1}}}
+{
+  "resultado": "aprobado",
+  "trx_id": {{$request.body.trx_id}},
+  "numero_cuenta": "{{$request.body.numero_cuenta}}",
+  "monto": {{$request.body.monto}},
+  "nombre": "{{$a0.results[0].nombre_1}}",
+  "apellido": "{{$a0.results[0].apellido_1}}",
+  "saldo": {{$a0.result.getClientInfoOutput.results[0].saldo_1}}
+}
 ```
 
 Haz clic en **Next**.
@@ -253,7 +261,16 @@ En la pantalla de configuración:
 - **Response Data**: Construye el JSON incluyendo el campo `"motivo": "Saldo insuficiente"`:
 
 ```json
-{"resultado": "rechazado", "trx_id": {{$request.body.trx_id}}, "numero_cuenta": "{{$request.body.numero_cuenta}}", "monto": {{$request.body.monto}}, "nombre": "{{$a0.results[0].nombre_1}}", "apellido": "{{$a0.results[0].apellido_1}}", "saldo": {{$a0.results[0].saldo_1}}, "motivo": "Saldo insuficiente"}
+{
+  "resultado": "rechazado",
+  "trx_id": {{$request.body.trx_id}},
+  "numero_cuenta": "{{$request.body.numero_cuenta}}",
+  "monto": {{$request.body.monto}},
+  "nombre": "{{$a0.result.getClientInfoOutput.results[0].nombre_1}}",
+  "apellido": "{{$a0.result.getClientInfoOutput.results[0].apellido_1}}",
+  "saldo": {{$a0.result.getClientInfoOutput.results[0].saldo_1}},
+  "motivo": "Saldo insuficiente"
+}
 ```
 
 Haz clic en **Next**.

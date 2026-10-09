@@ -457,7 +457,15 @@
             <li><strong>Content Type:</strong> <code>application/json</code></li>
           </ul>
           <p><strong>Response Data:</strong></p>
-          <pre><code>{"resultado": "aprobado", "trx_id": {{$request.body.trx_id}}, "numero_cuenta": "{{$request.body.numero_cuenta}}", "monto": {{$request.body.monto}}, "nombre": "{{$a0.results[0].nombre_1}}", "apellido": "{{$a0.results[0].apellido_1}}", "saldo": {{$a0.results[0].saldo_1}}}</code></pre>
+          <pre><code>{
+  "resultado": "aprobado",
+  "trx_id": {{$request.body.trx_id}},
+  "numero_cuenta": "{{$request.body.numero_cuenta}}",
+  "monto": {{$request.body.monto}},
+  "nombre": "{{$a0.results[0].nombre_1}}",
+  "apellido": "{{$a0.results[0].apellido_1}}",
+  "saldo": {{$a0.result.getClientInfoOutput.results[0].saldo_1}}
+}</code></pre>
           <p>Hacé clic en <strong>Next</strong>.</p>
           <img src="img/lab2/lab2-27.png" alt="Mapeo de Response Data para Caso Aprobación" class="lab-img">
           <p>Ejecutá el test con <strong>Test</strong>:</p>
@@ -474,7 +482,16 @@
             <li><strong>Content Type:</strong> <code>application/json</code></li>
           </ul>
           <p><strong>Response Data</strong> (incluye el campo <code>motivo</code>):</p>
-          <pre><code>{"resultado": "rechazado", "trx_id": {{$request.body.trx_id}}, "numero_cuenta": "{{$request.body.numero_cuenta}}", "monto": {{$request.body.monto}}, "nombre": "{{$a0.results[0].nombre_1}}", "apellido": "{{$a0.results[0].apellido_1}}", "saldo": {{$a0.results[0].saldo_1}}, "motivo": "Saldo insuficiente"}</code></pre>
+          <pre><code>{
+  "resultado": "rechazado",
+  "trx_id": {{$request.body.trx_id}},
+  "numero_cuenta": "{{$request.body.numero_cuenta}}",
+  "monto": {{$request.body.monto}},
+  "nombre": "{{$a0.result.getClientInfoOutput.results[0].nombre_1}}",
+  "apellido": "{{$a0.result.getClientInfoOutput.results[0].apellido_1}}",
+  "saldo": {{$a0.result.getClientInfoOutput.results[0].saldo_1}},
+  "motivo": "Saldo insuficiente"
+}</code></pre>
           <p>Hacé clic en <strong>Next</strong>.</p>
           <img src="img/lab2/lab2-30.png" alt="Mapeo de Response Data para Caso Rechazado" class="lab-img">
           <p>Ejecutá el test con <strong>Test</strong>:</p>
