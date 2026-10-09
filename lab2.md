@@ -233,8 +233,8 @@ En la pantalla de configuración:
   "trx_id": {{$request.body.trx_id}},
   "numero_cuenta": "{{$request.body.numero_cuenta}}",
   "monto": {{$request.body.monto}},
-  "nombre": "{{$a0.results[0].nombre_1}}",
-  "apellido": "{{$a0.results[0].apellido_1}}",
+  "nombre": "{{$a0.result.getClientInfoOutput.results[0].nombre_1}}",
+  "apellido": "{{$a0.result.getClientInfoOutput.results[0].apellido_1}}",
   "saldo": {{$a0.result.getClientInfoOutput.results[0].saldo_1}}
 }
 ```
